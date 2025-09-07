@@ -5,3 +5,6 @@ __pycache__/
 instance/
 .env
 *.log
+
+images_ref/
+.vscode/

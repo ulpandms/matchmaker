@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Match-Maker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="landing">
+  <section class="hero" style="background-image:url('{{ url_for('static', filename='images/homepage.png') }}')">
+    <div class="inner">
+      <p class="tagline">Pair · Play · Progress</p>
+      <h1 class="brand">Match-Maker</h1>
+      <a href="{{ url_for('event_info') }}" class="btn-cta">Game On</a>
+    </div>
+  </section>
+</body>
+</html>
