@@ -1,0 +1,119 @@
+/* -----------------------------------------------------------------------------
+   Landing Page Styles (index.html only)
+----------------------------------------------------------------------------- */
+
+/* Register the Aptos Narrow Regular */
+@font-face {
+  font-family: "AptosNarrow";
+  src: url("/static/fonts/Aptos-Narrow.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Register the Aptos Narrow Italic */
+@font-face {
+  font-family: "AptosNarrowItalic";
+  src: url("/static/fonts/Aptos-Narrow-Italic.ttf") format("truetype");
+  font-weight: normal;
+  font-style: italic;
+}
+
+body.landing {
+  margin: 0;
+  padding: 0;
+  height: 100dvh;
+  overflow: hidden;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  color: #fff;
+  background: #000;
+}
+
+/* Hero */
+body.landing .hero {
+  position: relative;
+  min-height: 100dvh;
+  width: 100vw;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 15vh;
+  text-align: center;
+  overflow: hidden;
+}
+
+/* Overlay */
+body.landing .hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Inner wrapper */
+body.landing .hero .inner {
+  position: relative;
+  z-index: 1;
+  padding: 0 1rem;
+  max-width: 720px;
+  animation: fadeIn .8s ease both;
+}
+
+/* Typography */
+body.landing .tagline {
+  font-family: "AptosNarrowItalic", sans-serif;
+  opacity: .9;
+  margin-bottom: .25rem;
+  font-size: clamp(14px, 2.6vw, 16px);
+  letter-spacing: .12em;
+  /* removed text-transform so original casing stays */
+}
+
+body.landing .brand {
+  font-family: "AptosNarrow", sans-serif;
+  font-size: clamp(32px, 6vw, 56px);
+  font-weight: 700;
+  letter-spacing: .5px;
+  margin: .5rem 0 1rem;
+  line-height: 1.1;
+}
+
+/* CTA button */
+body.landing .btn-cta {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: .85rem 1.4rem;
+  border-radius: 999px;
+  background: #ff7a00;
+  color: #fff;
+  font-weight: 400;
+  font-family: "AptosNarrow", sans-serif;
+  text-decoration: none;
+  box-shadow: 0 8px 18px rgba(255,122,0,.25);
+  transition: transform .08s ease, box-shadow .18s ease, opacity .18s ease;
+}
+body.landing .btn-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(255,122,0,.3);
+}
+body.landing .btn-cta:active { transform: translateY(0); opacity: .95; }
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Safe area support */
+@supports (padding: max(0px)) {
+  body.landing .hero .inner {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+    padding-top: max(0rem, env(safe-area-inset-top));
+    padding-bottom: max(0rem, env(safe-area-inset-bottom));
+  }
+}

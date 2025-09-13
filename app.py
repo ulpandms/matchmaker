@@ -6,13 +6,13 @@ app = Flask(__name__)
 def home():
     return render_template("index.html")
 
-@app.route("/event", methods=["GET", "POST"])
-def event_info():
-    # Placeholder so the Game On CTA works
+@app.route("/game-plan", methods=["GET", "POST"])
+def game_plan():
     if request.method == "POST":
-        # TODO: handle event form next
+        # TODO: handle submitted form data here
+        # e.g. name = request.form.get("match_name")
         return redirect(url_for("home"))
-    return render_template("event.html")
+    return render_template("game-plan.html")
 
 if __name__ == "__main__":
     app.run(debug=True)

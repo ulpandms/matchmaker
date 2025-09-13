@@ -1,0 +1,170 @@
+/* -----------------------------------------------------------------------------
+   Game Plan Page Styles
+----------------------------------------------------------------------------- */
+
+/* Register Aptos Narrow Regular */
+@font-face {
+  font-family: "AptosNarrow";
+  src: url("/static/fonts/Aptos-Narrow.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden; /* fully prevent scrollbars */
+}
+
+body.gameplan {
+  font-family: "AptosNarrow", sans-serif;
+  background: #fff;
+  color: #111;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Container */
+body.gameplan .container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Header */
+body.gameplan .header-title {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 2rem;
+  color: #ff7a00;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+}
+body.gameplan .header-title:hover {
+  opacity: 0.85;
+}
+
+/* Intro text */
+body.gameplan .intro {
+  font-size: 2.25rem;
+  line-height: 1.1;
+  margin-bottom: 0rem;
+}
+body.gameplan .intro strong {
+  color: #ff7a00;
+  font-weight: inherit;
+}
+
+/* Divider line */
+body.gameplan .divider {
+  height: 0.5px;
+  background: #111;
+  margin: 0rem 0 2rem;
+  border: none;
+}
+
+/* Form fields */
+body.gameplan form {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+body.gameplan label {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 0.35rem;
+}
+
+/* Input wrapper */
+body.gameplan .input-wrapper {
+  position: relative;
+  margin-bottom: 1.25rem;
+}
+
+body.gameplan .input-wrapper input {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 0.85rem 2.5rem 0.85rem 1rem; /* space for check icon */
+  font-family: "AptosNarrow", sans-serif;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  transition: border-color 0.2s;
+}
+body.gameplan .input-wrapper input:focus {
+  outline: none;
+  border-color: #ff7a00;
+}
+
+/* Check icon (circle + single check) */
+body.gameplan .check-icon {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid #ff7a00;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: #ff7a00;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+body.gameplan .input-wrapper.filled .check-icon {
+  opacity: 1;
+}
+
+/* Small helper text */
+body.gameplan .hint {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: -0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Button */
+body.gameplan .btn-submit {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 0.95rem;
+  border: none;
+  border-radius: 8px;
+  background: #d9d9d9; /* default inactive */
+  color: #fff;
+  font-family: "AptosNarrow", sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  text-align: center;
+  cursor: not-allowed;
+  transition: background 0.2s, transform 0.1s;
+}
+
+/* Active state */
+body.gameplan .btn-submit.active {
+  background: #68AEF2;
+  cursor: pointer;
+}
+
+body.gameplan .btn-submit.active:hover {
+  background: #529be0;
+}
+
+body.gameplan .btn-submit.active:active {
+  transform: translateY(1px);
+}
