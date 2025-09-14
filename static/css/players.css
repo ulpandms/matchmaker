@@ -1,0 +1,181 @@
+/* -----------------------------------------------------------------------------
+   Players Page Styles
+----------------------------------------------------------------------------- */
+
+/* Aptos Narrow */
+@font-face {
+  font-family: "AptosNarrow";
+  src: url("/static/fonts/Aptos-Narrow.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden; /* prevent scrollbars */
+}
+
+body.players {
+  font-family: "AptosNarrow", sans-serif;
+  background: #fff;
+  color: #111;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Header */
+.header-title {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 2rem;
+  color: #ff7a00;
+  margin-bottom: 1.5rem;
+  text-decoration: none;
+}
+.header-title:hover {
+  opacity: 0.85;
+}
+
+/* Intro */
+.intro {
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+}
+.divider {
+  height: 0.5px;
+  background: #111;
+  margin: 0 0 1.5rem;
+  border: none;
+}
+
+/* Player rows */
+.squad {
+  margin-bottom: 1rem;
+}
+.player-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.player-label {
+  width: 3rem;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+/* Input wrapper */
+.input-wrapper {
+  position: relative;
+  flex: 1;
+}
+.input-wrapper input {
+  display: block;
+  width: 100%;
+  padding: 0.85rem 2.5rem 0.85rem 1rem;
+  font-family: "AptosNarrow", sans-serif;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+.input-wrapper input:focus {
+  outline: none;
+  border-color: #ff7a00;
+}
+
+/* Circle check */
+.check-icon {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid #ff7a00;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: #ff7a00;
+  opacity: 0;
+  transition: opacity 0.2s ease, border-color 0.2s, color 0.2s;
+  cursor: pointer; /* allow clicks */
+}
+.input-wrapper.filled .check-icon {
+  opacity: 1;
+}
+
+/* Delete mode */
+.input-wrapper.delete .check-icon {
+  border-color: red !important;
+  color: red !important;
+}
+.input-wrapper.delete input {
+  border-color: red;
+  background: #fff5f5; /* subtle red background */
+}
+
+/* Add button */
+.add-btn {
+  margin-left: 0.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #111;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.add-btn:hover {
+  background: #f5f5f5;
+}
+
+/* Total */
+.total {
+  font-size: 0.95rem;
+  margin: 1rem 0;
+}
+
+/* Submit button */
+.btn-submit {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #d9d9d9; /* disabled state */
+  color: #fff;
+  font-family: "AptosNarrow", sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  text-align: center;
+  cursor: not-allowed;
+  transition: background 0.2s, transform 0.1s;
+}
+.btn-submit.active {
+  background: #ff7a00;
+  cursor: pointer;
+}
+.btn-submit.active:hover {
+  opacity: 0.9;
+}
+.btn-submit.active:active {
+  transform: translateY(1px);
+}

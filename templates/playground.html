@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Playground Setup · Match Maker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/playground.css') }}">
+</head>
+<body class="playground">
+  <div class="container">
+    <!-- Header -->
+    <a href="{{ url_for('home') }}" class="header-title">MATCH MAKER</a>
+
+    <!-- Title -->
+    <p class="intro">Pick Your Playground</p>
+    <hr class="divider">
+
+    <!-- Form -->
+    <form method="POST" action="{{ url_for('playground') }}">
+      <label for="sport">Choose Your Sport</label>
+      <div class="input-wrapper">
+        <select id="sport" name="sport" required>
+          <option value="" disabled selected>Select sport</option>
+          <option value="Tennis">Tennis</option>
+          <option value="Padel">Padel</option>
+          <option value="Badminton">Badminton</option>
+          <option value="Pingpong">Pingpong</option>
+        </select>
+        <span class="check-icon">✔</span>
+      </div>
+
+      <label for="format">Game Format</label>
+      <div class="input-wrapper">
+        <select id="format" name="format" required>
+          <option value="" disabled selected>Select format</option>
+          <option value="Americano">Americano</option>
+          <option value="Mexicano">Mexicano</option>
+          <option value="Fixed Partner">Fixed Partner</option>
+        </select>
+        <span class="check-icon">✔</span>
+      </div>
+
+      <label for="points">Point Limit</label>
+      <div class="input-wrapper">
+        <input type="number" id="points" name="points" placeholder="e.g. 11" min="1" required>
+        <span class="check-icon">✔</span>
+      </div>
+
+      <label for="courts">How Many Courts?</label>
+      <div class="input-wrapper">
+        <select id="courts" name="courts" required>
+          <option value="" disabled selected>Select number</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+        <span class="check-icon">✔</span>
+      </div>
+
+      <button type="submit" class="btn-submit">Set the Lineup</button>
+    </form>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/playground.js') }}"></script>
+</body>
+</html>

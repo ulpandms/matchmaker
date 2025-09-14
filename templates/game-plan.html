@@ -17,21 +17,21 @@
 
     <!-- Event setup form -->
     <form method="POST" action="{{ url_for('game_plan') }}">
-      <label for="match_name">Name Your Match</label>
+      <label for="game_name">Name Your Match</label>
       <div class="input-wrapper">
-        <input type="text" id="match_name" name="match_name" placeholder="eg. Sunday Smash" required>
+        <input type="text" id="game_name" name="game_name" placeholder="eg. Sunday Smash" required>
         <span class="check-icon">✔</span>
       </div>
 
-      <label for="court">Where’s the Court?</label>
+      <label for="game_place">Where’s the Court?</label>
       <div class="input-wrapper">
-        <input type="text" id="court" name="court" placeholder="eg. Bali Tennis Club" required>
+        <input type="text" id="game_place" name="game_place" placeholder="eg. Bali Tennis Club" required>
         <span class="check-icon">✔</span>
       </div>
 
-      <label for="email">Your Email</label>
+      <label for="host_email">Your Email</label>
       <div class="input-wrapper">
-        <input type="email" id="email" name="email" placeholder="eg. youremail@email.com" required>
+        <input type="email" id="host_email" name="host_email" placeholder="eg. youremail@email.com" required>
         <span class="check-icon">✔</span>
       </div>
       <div class="hint">No spam, just the good stuff</div>

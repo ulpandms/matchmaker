@@ -1,0 +1,129 @@
+/* Drawing Page Styles */
+
+@font-face {
+  font-family: "AptosNarrow";
+  src: url("/static/fonts/Aptos-Narrow.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body.drawing {
+  font-family: "AptosNarrow", sans-serif;
+  background: #fff;
+  color: #111;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Container */
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* Header */
+.header-title {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 2rem;
+  color: #ff7a00;
+  margin-bottom: 1.5rem;
+  text-decoration: none;
+}
+.header-title:hover { opacity: 0.85; }
+
+/* Intro */
+.intro {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+  text-align: left;
+}
+
+.divider {
+  height: 0.5px;
+  background: #111;
+  margin: 0.5rem 0 1.5rem;
+  border: none;
+}
+
+/* Game Info */
+.game-info h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.game-info .court {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+/* Team box */
+.team-box {
+  background: #f5f5f5;
+  padding: 0.75rem;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Player tag */
+.player {
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #000;
+}
+.team-a { background: #F2BE68; } /* orange */
+.team-b { background: #68AEF2; } /* blue */
+
+/* Plus sign */
+.plus {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #111;
+}
+
+/* Vs */
+.vs {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0.75rem 0 1rem;
+}
+
+/* Buttons */
+.button-row {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+.btn {
+  flex: 1;
+  padding: 0.85rem;
+  border: none;
+  border-radius: 6px;
+  font-family: "AptosNarrow", sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.btn:hover { opacity: 0.9; }
+.btn:active { transform: translateY(1px); }
+.btn-blue { background: #3b82f6; }
+.btn-orange { background: #ff7a00; }

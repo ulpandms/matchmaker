@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Players · Match Maker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/players.css') }}">
+</head>
+<body class="players">
+  <div class="container">
+    <!-- Header -->
+    <a href="{{ url_for('home') }}" class="header-title">MATCH MAKER</a>
+
+    <!-- Intro -->
+    <p class="intro">Who’s Playing Today?</p>
+    <hr class="divider">
+
+    <!-- Player Squad -->
+    <div class="squad">
+    <!-- Player 1 -->
+    <div class="player-row">
+        <div class="player-label">P-01</div>
+        <div class="input-wrapper">
+        <input type="text" placeholder="Player Name">
+        <div class="check-icon">✓</div>
+        </div>
+    </div>
+
+    <!-- Player 2 (last row starts with + button) -->
+    <div class="player-row">
+        <div class="player-label">P-02</div>
+        <div class="input-wrapper">
+        <input type="text" placeholder="Player Name">
+        <div class="check-icon">✓</div>
+        </div>
+        <button type="button" class="add-btn">+</button>
+    </div>
+    </div>
+
+
+    <!-- Total -->
+    <div class="total">Total Players: <span>0</span></div>
+
+    <!-- Submit -->
+    <button type="button" class="btn-submit" disabled>Start the Game</button>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/players.js') }}"></script>
+</body>
+</html>
