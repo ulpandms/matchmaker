@@ -1,51 +1,46 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Players · Match Maker</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/players.css') }}">
-</head>
-<body class="players">
-  <div class="container">
-    <!-- Header -->
-    <a href="{{ url_for('home') }}" class="header-title">MATCH MAKER</a>
+{% extends "base.html" %}
 
-    <!-- Intro -->
-    <p class="intro">Who’s Playing Today?</p>
-    <hr class="divider">
+{% block title %}Players · Match Maker{% endblock %}
+{% block body_class %}players{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/players.css') }}">
+{% endblock %}
 
-    <!-- Player Form -->
-    <form method="POST" action="{{ url_for('players') }}">
-      <div class="squad" id="squad">
-        <!-- Player 1 -->
-        <div class="player-row">
-          <div class="player-label">P-01</div>
-          <div class="input-wrapper">
-            <input type="text" name="player_01" placeholder="Player Name" required>
-            <div class="check-icon">✓</div>
-          </div>
-        </div>
+{% block intro %}
+<p class="intro">Who’s Playing Today?</p>
+{% endblock %}
 
-        <!-- Player 2 (last row starts with + button) -->
-        <div class="player-row">
-          <div class="player-label">P-02</div>
-          <div class="input-wrapper">
-            <input type="text" name="player_02" placeholder="Player Name" required>
-            <div class="check-icon">✓</div>
-          </div>
-          <button type="button" class="add-btn" id="addPlayer">+</button>
-        </div>
+{% block content %}
+<form method="POST" action="{{ url_for('players') }}">
+  <div class="squad" id="squad">
+    <!-- Player 1 -->
+    <div class="player-row">
+      <div class="player-label">P-01</div>
+      <div class="input-wrapper">
+        <input type="text" name="player_01" placeholder="Player Name" required>
+        <div class="check-icon">✓</div>
       </div>
+    </div>
 
-      <!-- Total -->
-      <div class="total">Total Players: <span id="totalCount">2</span></div>
-
-      <!-- Submit -->
-      <button type="submit" class="btn-submit" id="submitBtn" disabled>Start the Game</button>
-    </form>
+    <!-- Player 2 (last row starts with + button) -->
+    <div class="player-row">
+      <div class="player-label">P-02</div>
+      <div class="input-wrapper">
+        <input type="text" name="player_02" placeholder="Player Name" required>
+        <div class="check-icon">✓</div>
+      </div>
+      <button type="button" class="add-btn" id="addPlayer">+</button>
+    </div>
   </div>
 
-  <script src="{{ url_for('static', filename='js/players.js') }}"></script>
-</body>
-</html>
+  <!-- Total -->
+  <div class="total">Total Players: <span id="totalCount">2</span></div>
+
+  <!-- Submit -->
+  <button type="submit" class="btn-submit" id="submitBtn" disabled>Start the Game</button>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/players.js') }}"></script>
+{% endblock %}
