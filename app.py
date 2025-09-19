@@ -38,13 +38,15 @@ def game_plan():
         db.session.add(new_game)
         db.session.commit()
 
-        # Save to session so we can use it later
         session["current_game_id"] = new_game.game_id
 
+        print(f"[FORM DATA] {match_name}, {court}, {email}")  # ✅ Debug log
         print(f"[DB] New Game saved: {new_game.game_id}")
-        return redirect(url_for("playground"))
+
+        return redirect(url_for("playground"))  # ✅ must go somewhere visible
 
     return render_template("game-plan.html")
+
 
 # ---------- Playground ----------
 @app.route("/playground", methods=["GET", "POST"])

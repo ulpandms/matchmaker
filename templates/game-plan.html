@@ -1,45 +1,41 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Game Plan · Match Maker</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/game-plan.css') }}">
-</head>
-<body class="gameplan">
-  <div class="container">
-    <!-- Clickable header that returns home -->
-    <a href="{{ url_for('home') }}" class="header-title">MATCH MAKER</a>
+{% extends "base.html" %}
 
-    <!-- Intro text -->
-    <p class="intro">Let’s set the <strong>scene</strong> before the <strong>first serve</strong></p>
-    <hr class="divider">
+{% block title %}Game Plan · Match Maker{% endblock %}
+{% block body_class %}gameplan{% endblock %}
 
-    <!-- Event setup form -->
-    <form method="POST" action="{{ url_for('game_plan') }}">
-      <label for="game_name">Name Your Match</label>
-      <div class="input-wrapper">
-        <input type="text" id="game_name" name="game_name" placeholder="eg. Sunday Smash" required>
-        <span class="check-icon">✔</span>
-      </div>
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/game-plan.css') }}">
+{% endblock %}
 
-      <label for="game_place">Where’s the Court?</label>
-      <div class="input-wrapper">
-        <input type="text" id="game_place" name="game_place" placeholder="eg. Bali Tennis Club" required>
-        <span class="check-icon">✔</span>
-      </div>
+{% block intro %}
+<p class="intro">Let’s set the <strong>scene</strong> before the <strong>first serve</strong></p>
+{% endblock %}
 
-      <label for="host_email">Your Email</label>
-      <div class="input-wrapper">
-        <input type="email" id="host_email" name="host_email" placeholder="eg. youremail@email.com" required>
-        <span class="check-icon">✔</span>
-      </div>
-      <div class="hint">No spam, just the good stuff</div>
-
-      <button type="submit" class="btn-submit">Serve It Up</button>
-    </form>
+{% block content %}
+<form method="POST" action="{{ url_for('game_plan') }}">
+  <label for="game_name">Name Your Match</label>
+  <div class="input-wrapper">
+    <input type="text" id="game_name" name="game_name" placeholder="eg. Sunday Smash" required>
+    <span class="check-icon">✔</span>
   </div>
 
-  <script src="{{ url_for('static', filename='js/game-plan.js') }}"></script>
-</body>
-</html>
+  <label for="game_place">Where’s the Court?</label>
+  <div class="input-wrapper">
+    <input type="text" id="game_place" name="game_place" placeholder="eg. Bali Tennis Club" required>
+    <span class="check-icon">✔</span>
+  </div>
+
+  <label for="host_email">Your Email</label>
+  <div class="input-wrapper">
+    <input type="email" id="host_email" name="host_email" placeholder="eg. youremail@email.com" required>
+    <span class="check-icon">✔</span>
+  </div>
+  <div class="hint">No spam, just the good stuff</div>
+
+  <button type="submit" class="btn-submit" disabled>Serve It Up</button>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/game-plan.js') }}"></script>
+{% endblock %}
