@@ -19,7 +19,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function refreshPlayerLabels() {
     squadContainer.querySelectorAll(".player-row").forEach((row, idx) => {
-      row.querySelector(".player-label").textContent = `P-${String(idx + 1).padStart(2, "0")}`;
+      const playerNo = `P-${String(idx + 1).padStart(2, "0")}`;
+      row.querySelector(".player-label").textContent = playerNo;
+
+      // also refresh input name
+      const input = row.querySelector("input");
+      if (input) {
+        input.name = `player_${String(idx + 1).padStart(2, "0")}`;
+      }
     });
   }
 
@@ -95,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
     row.innerHTML = `
       <div class="player-label">P-${String(index).padStart(2, "0")}</div>
       <div class="input-wrapper">
-        <input type="text" placeholder="Player Name">
+        <input type="text" name="player_${String(index).padStart(2, "0")}" placeholder="Player Name" required>
         <div class="check-icon">✓</div>
       </div>
       <button type="button" class="add-btn">+</button>
@@ -104,11 +111,13 @@ document.addEventListener("DOMContentLoaded", () => {
     squadContainer.appendChild(row);
     attachEvents(row);
     refreshPlusButtons();
+    updateTotal();
   }
 
   // Init existing rows
   squadContainer.querySelectorAll(".player-row").forEach(row => attachEvents(row));
 
+  refreshPlayerLabels();
   refreshPlusButtons();
   updateTotal();
 });

@@ -8,3 +8,5 @@ instance/
 
 images_ref/
 .vscode/
+
+migrations/

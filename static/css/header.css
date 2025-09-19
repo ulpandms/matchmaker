@@ -1,0 +1,38 @@
+/* Shared Header + Layout Sections */
+.app-header {
+  text-align: left;
+  margin: 1rem 0;
+}
+
+.header-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ff7a00;
+  text-decoration: none;
+  letter-spacing: 1px;
+}
+.header-title:hover {
+  opacity: 0.8;
+}
+
+/* Intro */
+.intro {
+  text-align: left;
+  font-size: 2rem;
+  margin: 0.5rem 0;
+}
+.intro strong {
+  color: #ff7a00;
+}
+
+/* Divider */
+.divider {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 1rem 0;
+}
+
+/* Main wrapper */
+.main-content {
+  margin: 1.5rem 0;
+}

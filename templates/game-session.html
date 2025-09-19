@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game Session · Match Maker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/game-session.css') }}">
+</head>
+<body class="game-session">
+  <div class="container">
+    <!-- Header -->
+    <a href="{{ url_for('home') }}" class="header-title">MATCH MAKER</a>
+
+    <!-- Intro -->
+    <p class="intro">Game Session</p>
+    <hr class="divider">
+
+    <!-- Game Info -->
+    <div class="game-info">
+      <h2>Game #1</h2>
+      <p class="court">(court A)</p>
+    </div>
+
+    <!-- Teams -->
+    <div class="teams">
+      <div class="team-box team-a">
+        <span class="player">Dimas</span> + <span class="player">Amin</span>
+      </div>
+      <div class="vs-circle">Vs</div>
+      <div class="team-box team-b">
+        <span class="player">Ryan</span> + <span class="player">Yulius</span>
+      </div>
+    </div>
+
+    <!-- Scoreboard -->
+    <div class="scoreboard">
+      <div class="score team-a-score">
+        <div class="score-number" id="scoreA">0</div>
+        <div class="controls">
+          <button class="btn-control" onclick="changeScore('A', -1)">−</button>
+          <button class="btn-control" onclick="changeScore('A', 1)">+</button>
+        </div>
+      </div>
+      <div class="score team-b-score">
+        <div class="score-number" id="scoreB">0</div>
+        <div class="controls">
+          <button class="btn-control" onclick="changeScore('B', 1)">+</button>
+          <button class="btn-control" onclick="changeScore('B', -1)">−</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Duration -->
+    <p class="duration">Game Duration: <span id="duration">0’</span></p>
+
+    <!-- Buttons -->
+    <div class="button-row">
+      <button class="btn btn-blue" onclick="endGame()">End This Game</button>
+      <button class="btn btn-orange" onclick="nextMatch()">Next Match</button>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/game-session.js') }}"></script>
+</body>
+</html>

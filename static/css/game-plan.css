@@ -97,11 +97,20 @@ body.gameplan .input-wrapper input {
   font-size: 1rem;
   border: 1px solid #ddd;
   border-radius: 8px;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, background-color 0.2s;
+  background: #fff !important;  /* force white background */
+  color: #111;
 }
 body.gameplan .input-wrapper input:focus {
   outline: none;
   border-color: #ff7a00;
+}
+
+/* Autofill override (Chrome/Edge) */
+body.gameplan .input-wrapper input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+  -webkit-text-fill-color: #111 !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 /* Check icon (circle + single check) */

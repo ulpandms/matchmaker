@@ -23,15 +23,23 @@
           <option value="" disabled selected>Select sport</option>
           <option value="Tennis">Tennis</option>
           <option value="Padel">Padel</option>
-          <option value="Badminton">Badminton</option>
-          <option value="Pingpong">Pingpong</option>
         </select>
         <span class="check-icon">✔</span>
       </div>
 
-      <label for="format">Game Format</label>
+      <label for="game_type">Game Type</label>
       <div class="input-wrapper">
-        <select id="format" name="format" required>
+        <select id="game_type" name="game_type" required>
+          <option value="" disabled selected>Select game type</option>
+          <option value="Singles">Singles</option>
+          <option value="Doubles">Doubles</option>
+        </select>
+        <span class="check-icon">✔</span>
+      </div>
+
+      <label for="game_format">Game Format</label>
+      <div class="input-wrapper">
+        <select id="game_format" name="game_format" required>
           <option value="" disabled selected>Select format</option>
           <option value="Americano">Americano</option>
           <option value="Mexicano">Mexicano</option>
@@ -40,15 +48,15 @@
         <span class="check-icon">✔</span>
       </div>
 
-      <label for="points">Point Limit</label>
+      <label for="point_limit">Point Limit</label>
       <div class="input-wrapper">
-        <input type="number" id="points" name="points" placeholder="e.g. 11" min="1" required>
+        <input type="number" id="point_limit" name="point_limit" placeholder="e.g. 11" min="1" required>
         <span class="check-icon">✔</span>
       </div>
 
-      <label for="courts">How Many Courts?</label>
+      <label for="courts_count">How Many Courts?</label>
       <div class="input-wrapper">
-        <select id="courts" name="courts" required>
+        <select id="courts_count" name="courts_count" required>
           <option value="" disabled selected>Select number</option>
           <option value="1">1</option>
           <option value="2">2</option>

@@ -15,34 +15,35 @@
     <p class="intro">Who’s Playing Today?</p>
     <hr class="divider">
 
-    <!-- Player Squad -->
-    <div class="squad">
-    <!-- Player 1 -->
-    <div class="player-row">
-        <div class="player-label">P-01</div>
-        <div class="input-wrapper">
-        <input type="text" placeholder="Player Name">
-        <div class="check-icon">✓</div>
+    <!-- Player Form -->
+    <form method="POST" action="{{ url_for('players') }}">
+      <div class="squad" id="squad">
+        <!-- Player 1 -->
+        <div class="player-row">
+          <div class="player-label">P-01</div>
+          <div class="input-wrapper">
+            <input type="text" name="player_01" placeholder="Player Name" required>
+            <div class="check-icon">✓</div>
+          </div>
         </div>
-    </div>
 
-    <!-- Player 2 (last row starts with + button) -->
-    <div class="player-row">
-        <div class="player-label">P-02</div>
-        <div class="input-wrapper">
-        <input type="text" placeholder="Player Name">
-        <div class="check-icon">✓</div>
+        <!-- Player 2 (last row starts with + button) -->
+        <div class="player-row">
+          <div class="player-label">P-02</div>
+          <div class="input-wrapper">
+            <input type="text" name="player_02" placeholder="Player Name" required>
+            <div class="check-icon">✓</div>
+          </div>
+          <button type="button" class="add-btn" id="addPlayer">+</button>
         </div>
-        <button type="button" class="add-btn">+</button>
-    </div>
-    </div>
+      </div>
 
+      <!-- Total -->
+      <div class="total">Total Players: <span id="totalCount">2</span></div>
 
-    <!-- Total -->
-    <div class="total">Total Players: <span>0</span></div>
-
-    <!-- Submit -->
-    <button type="button" class="btn-submit" disabled>Start the Game</button>
+      <!-- Submit -->
+      <button type="submit" class="btn-submit" id="submitBtn" disabled>Start the Game</button>
+    </form>
   </div>
 
   <script src="{{ url_for('static', filename='js/players.js') }}"></script>
