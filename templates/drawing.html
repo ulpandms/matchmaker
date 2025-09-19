@@ -1,51 +1,45 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Drawing · Match Maker</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/drawing.css') }}">
-</head>
-<body class="drawing">
-  <div class="container">
-    <!-- Header -->
-    <a href="{{ url_for('home') }}" class="header-title">MATCH MAKER</a>
+{% extends "base.html" %}
 
-    <!-- Intro -->
-    <p class="intro">Players Drawing</p>
-    <hr class="divider">
+{% block title %}Drawing · Match Maker{% endblock %}
+{% block body_class %}drawing{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/drawing.css') }}">
+{% endblock %}
 
-    {% if games %}
-      {% set game = games[-1] %}
-      <div class="game-info">
-        <h2>Game #{{ game.game_no }}</h2>
-      </div>
+{% block intro %}
+<p class="intro">Players Drawing</p>
+{% endblock %}
 
-      <!-- Team A -->
-      <div class="team-box">
-        <span class="player team-a">{{ game.teams[0][0] }}</span>
-        <span class="plus">+</span>
-        <span class="player team-a">{{ game.teams[0][1] }}</span>
-      </div>
+{% block content %}
+  {% if games %}
+    {% set game = games[-1] %}
+    <div class="game-info">
+      <h2>Game #{{ game.game_no }}</h2>
+    </div>
 
-      <!-- Vs -->
-      <div class="vs">vs</div>
+    <!-- Team A -->
+    <div class="team-box">
+      <span class="player team-a">{{ game.teams[0][0] }}</span>
+      <span class="plus">+</span>
+      <span class="player team-a">{{ game.teams[0][1] }}</span>
+    </div>
 
-      <!-- Team B -->
-      <div class="team-box">
-        <span class="player team-b">{{ game.teams[1][0] }}</span>
-        <span class="plus">+</span>
-        <span class="player team-b">{{ game.teams[1][1] }}</span>
-      </div>
-    {% else %}
-      <p>No games yet. Click <strong>Game On!</strong> to start.</p>
-    {% endif %}
+    <!-- Vs -->
+    <div class="vs">vs</div>
 
-    <!-- Buttons -->
-    <form method="POST" class="button-row">
-      <button type="submit" name="action" value="redraw" class="btn btn-blue">Re-Draw</button>
-      <button type="submit" name="action" value="next" class="btn btn-orange">Game On!</button>
-    </form>
-  </div>
-</body>
-</html>
+    <!-- Team B -->
+    <div class="team-box">
+      <span class="player team-b">{{ game.teams[1][0] }}</span>
+      <span class="plus">+</span>
+      <span class="player team-b">{{ game.teams[1][1] }}</span>
+    </div>
+  {% else %}
+    <p>No games yet. Click <strong>Game On!</strong> to start.</p>
+  {% endif %}
+
+  <!-- Buttons -->
+  <form method="POST" class="button-row">
+    <button type="submit" name="action" value="redraw" class="btn btn-blue">Re-Draw</button>
+    <button type="submit" name="action" value="next" class="btn btn-orange">Game On!</button>
+  </form>
+{% endblock %}
