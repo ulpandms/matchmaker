@@ -1,74 +1,69 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Playground Setup · Match Maker</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/playground.css') }}">
-</head>
-<body class="playground">
-  <div class="container">
-    <!-- Header -->
-    <a href="{{ url_for('home') }}" class="header-title">MATCH MAKER</a>
+{% extends "base.html" %}
 
-    <!-- Title -->
-    <p class="intro">Pick Your Playground</p>
-    <hr class="divider">
+{% block title %}Playground Setup · Match Maker{% endblock %}
+{% block body_class %}playground{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/playground.css') }}">
+{% endblock %}
 
-    <!-- Form -->
-    <form method="POST" action="{{ url_for('playground') }}">
-      <label for="sport">Choose Your Sport</label>
-      <div class="input-wrapper">
-        <select id="sport" name="sport" required>
-          <option value="" disabled selected>Select sport</option>
-          <option value="Tennis">Tennis</option>
-          <option value="Padel">Padel</option>
-        </select>
-        <span class="check-icon">✔</span>
-      </div>
+{% block intro %}
+<p class="intro">Pick Your Playground</p>
+{% endblock %}
 
-      <label for="game_type">Game Type</label>
-      <div class="input-wrapper">
-        <select id="game_type" name="game_type" required>
-          <option value="" disabled selected>Select game type</option>
-          <option value="Singles">Singles</option>
-          <option value="Doubles">Doubles</option>
-        </select>
-        <span class="check-icon">✔</span>
-      </div>
-
-      <label for="game_format">Game Format</label>
-      <div class="input-wrapper">
-        <select id="game_format" name="game_format" required>
-          <option value="" disabled selected>Select format</option>
-          <option value="Americano">Americano</option>
-          <option value="Mexicano">Mexicano</option>
-          <option value="Fixed Partner">Fixed Partner</option>
-        </select>
-        <span class="check-icon">✔</span>
-      </div>
-
-      <label for="point_limit">Point Limit</label>
-      <div class="input-wrapper">
-        <input type="number" id="point_limit" name="point_limit" placeholder="e.g. 11" min="1" required>
-        <span class="check-icon">✔</span>
-      </div>
-
-      <label for="courts_count">How Many Courts?</label>
-      <div class="input-wrapper">
-        <select id="courts_count" name="courts_count" required>
-          <option value="" disabled selected>Select number</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-        </select>
-        <span class="check-icon">✔</span>
-      </div>
-
-      <button type="submit" class="btn-submit">Set the Lineup</button>
-    </form>
+{% block content %}
+<form method="POST" action="{{ url_for('playground') }}">
+  <label for="sport">Choose Your Sport</label>
+  <div class="input-wrapper">
+    <select id="sport" name="sport" required>
+      <option value="" disabled selected>Select sport</option>
+      <option value="Tennis">Tennis</option>
+      <option value="Padel">Padel</option>
+    </select>
+    <span class="check-icon">✔</span>
   </div>
 
-  <script src="{{ url_for('static', filename='js/playground.js') }}"></script>
-</body>
-</html>
+  <label for="game_type">Game Type</label>
+  <div class="input-wrapper">
+    <select id="game_type" name="game_type" required>
+      <option value="" disabled selected>Select game type</option>
+      <option value="Singles">Singles</option>
+      <option value="Doubles">Doubles</option>
+    </select>
+    <span class="check-icon">✔</span>
+  </div>
+
+  <label for="game_format">Game Format</label>
+  <div class="input-wrapper">
+    <select id="game_format" name="game_format" required>
+      <option value="" disabled selected>Select format</option>
+      <option value="Americano">Americano</option>
+      <option value="Mexicano">Mexicano</option>
+      <option value="Fixed Partner">Fixed Partner</option>
+    </select>
+    <span class="check-icon">✔</span>
+  </div>
+
+  <label for="point_limit">Point Limit</label>
+  <div class="input-wrapper">
+    <input type="number" id="point_limit" name="point_limit" placeholder="e.g. 11" min="1" required>
+    <span class="check-icon">✔</span>
+  </div>
+
+  <label for="courts_count">How Many Courts?</label>
+  <div class="input-wrapper">
+    <select id="courts_count" name="courts_count" required>
+      <option value="" disabled selected>Select number</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+    </select>
+    <span class="check-icon">✔</span>
+  </div>
+
+  <button type="submit" class="btn-submit" disabled>Set the Lineup</button>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/playground.js') }}"></script>
+{% endblock %}
