@@ -18,20 +18,6 @@ body.game-session .container {
   text-align: center;
 }
 
-/* Override intro size only for this page */
-body.game-session .intro {
-  font-size: 1.5rem;
-  margin-top: 1rem;
-  margin-bottom: 0.25rem;
-}
-
-/* Divider override */
-body.game-session .divider {
-  border: none;
-  height: 1px;
-  background: #111;
-  margin-bottom: 1.5rem;
-}
 
 /* Game info */
 body.game-session .game-info h2 {

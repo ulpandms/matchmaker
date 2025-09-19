@@ -5,31 +5,34 @@
 }
 
 .header-title {
-  font-size: 1.5rem;
-  font-weight: bold;
+  display: inline-block;
+  font-weight: 700;
+  font-size: 2rem;
   color: #ff7a00;
+  margin-bottom: 1.5rem;
   text-decoration: none;
-  letter-spacing: 1px;
 }
-.header-title:hover {
-  opacity: 0.8;
-}
+
+.header-title:hover { opacity: 0.85; }
+
 
 /* Intro */
 .intro {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
   text-align: left;
-  font-size: 2rem;
-  margin: 0.5rem 0;
 }
+
 .intro strong {
   color: #ff7a00;
 }
 
 /* Divider */
 .divider {
+  height: 0.5px;
+  background: #111;
+  margin: 0.5rem 0 1.5rem;
   border: none;
-  border-top: 1px solid #ccc;
-  margin: 1rem 0;
 }
 
 /* Main wrapper */
