@@ -22,12 +22,14 @@ body.drawing {
   text-align: center;
 }
 
-
 /* Game Info */
 .game-info h2 {
   margin: 0;
   font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1em 1em;
 }
+
 .game-info .court {
   font-size: 0.9rem;
   color: #666;

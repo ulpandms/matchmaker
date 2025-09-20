@@ -1,20 +1,21 @@
 # app.py
 from flask import Flask, render_template, request, redirect, url_for, session
-from flask_migrate import Migrate   # NEW
+from flask_migrate import Migrate
 from models import db, GameInfo, Playground, Player, GameDetail
+
+from logic import mexicano
+
 
 app = Flask(__name__)
 app.secret_key = "dev"
 
-# Configure SQLite (instance folder keeps DB safe)
+# Configure SQLite
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///matchmaker.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# Bind db to app
+# Bind db + migrations
 db.init_app(app)
-
-# Initialize migration
-migrate = Migrate(app, db)   # NEW
+migrate = Migrate(app, db)
 
 # -------------------- Routes --------------------
 
@@ -39,14 +40,11 @@ def game_plan():
         db.session.commit()
 
         session["current_game_id"] = new_game.game_id
-
-        print(f"[FORM DATA] {match_name}, {court}, {email}")  # ✅ Debug log
         print(f"[DB] New Game saved: {new_game.game_id}")
 
-        return redirect(url_for("playground"))  # ✅ must go somewhere visible
+        return redirect(url_for("playground"))
 
     return render_template("game-plan.html")
-
 
 # ---------- Playground ----------
 @app.route("/playground", methods=["GET", "POST"])
@@ -78,7 +76,6 @@ def playground():
 
     return render_template("playground.html")
 
-
 # ---------- Players ----------
 @app.route("/players", methods=["GET", "POST"])
 def players():
@@ -87,7 +84,6 @@ def players():
         if not game_id:
             return redirect(url_for("game_plan"))
 
-        # Collect dynamic players from form
         players = [v for k, v in request.form.items() if k.startswith("player_") and v.strip()]
 
         for idx, name in enumerate(players, start=1):
@@ -105,19 +101,61 @@ def players():
 
     return render_template("players.html")
 
-
 # ---------- Drawing ----------
 @app.route("/drawing", methods=["GET", "POST"])
 def drawing():
     game_id = session.get("current_game_id")
     if not game_id:
-        return redirect(url_for("game_plan"))
+        game_id = "TESTGAME1234567890123456"
+        session["current_game_id"] = game_id
+
+    # Mock players for now (replace later with DB)
+    mock_players = [
+        {"player_code": "P-01", "player_name": "Dimas"},
+        {"player_code": "P-02", "player_name": "Ryan"},
+        {"player_code": "P-03", "player_name": "Kenny"},
+        {"player_code": "P-04", "player_name": "Steven"},
+        {"player_code": "P-05", "player_name": "Yulius"},
+        {"player_code": "P-06", "player_name": "Amin"},
+    ]
+    if "players" not in session:
+        session["players"] = mock_players
+
+    players = [p["player_name"] for p in session["players"]]
+
+    if "games" not in session:
+        session["games"] = []
+
+    games = session["games"]
+
+    if not games:
+        first_game = mexicano.next_game(players, [])
+        if first_game:
+            games.append(first_game)
+            session["games"] = games
 
     if request.method == "POST":
-        # Later handle storing matches into Game table
-        return redirect(url_for("home"))
+        action = request.form.get("action")
 
-    return render_template("drawing.html")
+        if action == "redraw" and games:
+            games[-1] = mexicano.next_game(players, games[:-1])
+
+        elif action == "next":  # ✅ "Game On"
+            current_game = games[-1]
+
+            # Save teams into session for Game Session
+            session["current_match"] = {
+                "game_no": current_game["game_no"],
+                "team_a": current_game["teams"][0],
+                "team_b": current_game["teams"][1],
+            }
+
+            return redirect(url_for("game_session"))
+
+        session["games"] = games
+        return redirect(url_for("drawing"))
+
+    return render_template("drawing.html", games=games)
 
 # ---------- Game Session ----------
 @app.route("/game-session", methods=["GET", "POST"])
@@ -126,12 +164,25 @@ def game_session():
     if not game_id:
         return redirect(url_for("game_plan"))
 
-    # For now: hardcoded demo UI
-    if request.method == "POST":
-        # TODO: Save scores, update GameDetail table
-        pass
+    match = session.get("current_match")
+    if not match:
+        return redirect(url_for("drawing"))
 
-    return render_template("game-session.html")
+    # Pull point_limit from playground settings
+    playground = Playground.query.filter_by(game_id=game_id).first()
+    point_limit = playground.point_limit if playground else 21
+
+    team_a = match["team_a"]
+    team_b = match["team_b"]
+    game_no = match["game_no"]
+
+    return render_template(
+        "game-session.html",
+        game_no=game_no,
+        team_a=team_a,
+        team_b=team_b,
+        point_limit=point_limit,
+    )
 
 # -------------------- Run --------------------
 if __name__ == "__main__":

@@ -25,6 +25,7 @@ body.game-session .container {
 body.game-session .game-info h2 {
   font-size: 1.25rem;
   margin: 0;
+  font-weight: 600;
 }
 body.game-session .court {
   font-size: 0.9rem;

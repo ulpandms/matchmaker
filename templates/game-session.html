@@ -13,18 +13,18 @@
 {% block content %}
   <!-- Game Info -->
   <div class="game-info">
-    <h2>Game #1</h2>
+    <h2>Game #{{ game_no }}</h2>
     <p class="court">(Court A)</p>
   </div>
 
   <!-- Teams -->
   <div class="teams">
     <div class="team-box team-a">
-      <span class="player">Dimas</span> + <span class="player">Amin</span>
+      <span class="player">{{ team_a[0] }}</span> + <span class="player">{{ team_a[1] }}</span>
     </div>
     <div class="vs-circle">Vs</div>
     <div class="team-box team-b">
-      <span class="player">Ryan</span> + <span class="player">Yulius</span>
+      <span class="player">{{ team_b[0] }}</span> + <span class="player">{{ team_b[1] }}</span>
     </div>
   </div>
 
@@ -57,5 +57,36 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/game-session.js') }}"></script>
+<script>
+  let scoreA = 0, scoreB = 0;
+  const limit = {{ point_limit|default(21) }};  // from Playground, default 21
+  const durationEl = document.getElementById('duration');
+  let seconds = 0;
+  setInterval(() => {
+    seconds++;
+    let mins = Math.floor(seconds / 60);
+    let secs = seconds % 60;
+    durationEl.textContent = `${mins}’${secs.toString().padStart(2,'0')}`;
+  }, 1000);
+
+  function changeScore(team, delta) {
+    if (team === 'A') {
+      scoreA = Math.max(0, Math.min(limit, scoreA + delta));
+      document.getElementById('scoreA').textContent = scoreA;
+    } else {
+      scoreB = Math.max(0, Math.min(limit, scoreB + delta));
+      document.getElementById('scoreB').textContent = scoreB;
+    }
+  }
+
+  function endGame() {
+    alert(`Game Ended! Final Score: ${scoreA} - ${scoreB}`);
+    // TODO: send result to backend via fetch/POST
+  }
+
+  function nextMatch() {
+    alert("Next Match will be drawn!");
+    window.location.href = "{{ url_for('drawing') }}";
+  }
+</script>
 {% endblock %}
