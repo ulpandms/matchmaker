@@ -26,10 +26,13 @@ body.game-session .game-info h2 {
   font-size: 1.25rem;
   margin: 0;
   font-weight: 600;
+  text-align: left;
 }
 body.game-session .court {
   font-size: 0.9rem;
   color: #666;
+  text-align: left;
+  margin: 0 0 2em 0;
 }
 
 /* Teams */
@@ -44,7 +47,7 @@ body.game-session .team-box {
   background: #f5f5f5;
   padding: 0.5rem 1rem;
   border-radius: 6px;
-  font-weight: 600;
+  font-weight: 200;
 }
 body.game-session .team-a { background: #f2be68; }
 body.game-session .team-b { background: #68aef2; }
