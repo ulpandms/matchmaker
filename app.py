@@ -1,8 +1,7 @@
-# app.py
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_migrate import Migrate
 from models import db, GameInfo, Playground, Player, GameDetail
-from logic import mexicano
+from logic.loader import load_logic
 import datetime
 
 app = Flask(__name__)
@@ -15,6 +14,28 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # Bind db + migrations
 db.init_app(app)
 migrate = Migrate(app, db)
+
+
+# -------------------- Helpers --------------------
+def get_logic():
+    """Load logic module based on current playground & players."""
+    players = session.get("players", [])
+    players_count = len(players)
+
+    game_id = session.get("current_game_id")
+    if not game_id:
+        return None
+
+    playground = Playground.query.filter_by(game_id=game_id).first()
+    if not playground:
+        return None
+
+    return load_logic(
+        playground.game_type,
+        playground.game_format,
+        players_count,
+        playground.courts_count
+    )
 
 
 # -------------------- Routes --------------------
@@ -40,8 +61,6 @@ def game_plan():
         db.session.commit()
 
         session["current_game_id"] = new_game.game_id
-        print(f"[DB] New Game saved: {new_game.game_id}")
-
         return redirect(url_for("playground"))
 
     return render_template("game-plan.html")
@@ -72,7 +91,7 @@ def playground():
         db.session.add(new_playground)
         db.session.commit()
 
-        print(f"[DB] Playground saved for game {game_id}")
+        session["point_limit"] = int(point_limit)
         return redirect(url_for("players"))
 
     return render_template("playground.html")
@@ -87,133 +106,90 @@ def players():
             return redirect(url_for("game_plan"))
 
         players = [v for k, v in request.form.items() if k.startswith("player_") and v.strip()]
-
-        for idx, name in enumerate(players, start=1):
-            player = Player(
-                game_id=game_id,
-                player_code=f"P-{idx:02}",
-                player_name=name
-            )
-            db.session.add(player)
-
-        db.session.commit()
-        print(f"[DB] {len(players)} players saved for game {game_id}")
+        session["players"] = [{"player_code": f"P-{i:02}", "player_name": name}
+                              for i, name in enumerate(players, start=1)]
 
         return redirect(url_for("drawing"))
 
     return render_template("players.html")
 
 
-# ---------- Drawing ----------
 @app.route("/drawing", methods=["GET", "POST"])
 def drawing():
     game_id = session.get("current_game_id")
     if not game_id:
-        game_id = "TESTGAME1234567890123456"
-        session["current_game_id"] = game_id
+        return redirect(url_for("game_plan"))
 
-    # Mock players for now (replace later with DB)
-    mock_players = [
-        {"player_code": "P-01", "player_name": "Dimas"},
-        {"player_code": "P-02", "player_name": "Ryan"},
-        {"player_code": "P-03", "player_name": "Kenny"},
-        {"player_code": "P-04", "player_name": "Steven"},
-        {"player_code": "P-05", "player_name": "Yulius"},
-        {"player_code": "P-06", "player_name": "Amin"},
-    ]
-    if "players" not in session:
-        session["players"] = mock_players
-
-    players = [p["player_name"] for p in session["players"]]
+    players = [p["player_name"] for p in session.get("players", [])]
+    if not players:
+        return redirect(url_for("players"))
 
     if "games" not in session:
         session["games"] = []
 
     games = session["games"]
-
-    if not games:
-        first_game = mexicano.next_game(players, [])
-        if first_game:
-            games.append(first_game)
-            session["games"] = games
+    logic = get_logic()
+    if not logic:
+        return "No matching game logic found", 500
 
     if request.method == "POST":
         action = request.form.get("action")
 
-        if action == "redraw" and games:
-            games[-1] = mexicano.next_game(players, games[:-1])
-
-        elif action == "next":  # ✅ "Game On"
-            current_game = games[-1]
-
-            # Save teams into session for Game Session
-            session["current_match"] = {
-                "game_no": current_game["game_no"],
-                "team_a": current_game["teams"][0],
-                "team_b": current_game["teams"][1],
-                "start_time": session.get("current_match", {}).get("start_time")
-                               or datetime.datetime.now().isoformat(),  # persist start
-                "ended": False
-            }
-
+        if action == "redraw":
+            if games:
+                last_no = games[-1]["game_no"]
+                new_game = logic.next_game(players, games[:-1])
+                if new_game:
+                    new_game["game_no"] = last_no
+                    games[-1] = new_game
+        elif action == "next":
+            new_game = logic.next_game(players, games)
+            if new_game:
+                games.append(new_game)
+            session["games"] = games
             return redirect(url_for("game_session"))
 
         session["games"] = games
         return redirect(url_for("drawing"))
 
-    return render_template("drawing.html", games=games)
+    # ✅ pass players here
+    return render_template("drawing.html", games=games, players=players)
+
 
 
 # ---------- Game Session ----------
 @app.route("/game-session", methods=["GET", "POST"])
 def game_session():
-    game_id = session.get("current_game_id")
-    if not game_id:
-        return redirect(url_for("game_plan"))
-
-    last_game = session.get("games", [])[-1] if session.get("games") else None
-    if not last_game:
+    games = session.get("games", [])
+    if not games:
         return redirect(url_for("drawing"))
 
-    team_a = last_game["teams"][0]
-    team_b = last_game["teams"][1]
-    game_no = last_game["game_no"]
+    current_game = games[-1]
 
-    # Ensure match state is initialized
-    match_state = session.get("current_match", {})
-    if "start_time" not in match_state:
-        match_state["start_time"] = datetime.datetime.now().isoformat()
-    if "scoreA" not in match_state:
-        match_state["scoreA"] = 0
-    if "scoreB" not in match_state:
-        match_state["scoreB"] = 0
+    if request.method == "POST":
+        winner = request.form.get("winner")
+        if winner:
+            if winner == "A":
+                current_game["winner_players"] = current_game["teams"][0]
+                current_game["loser_players"] = current_game["teams"][1]
+            elif winner == "B":
+                current_game["winner_players"] = current_game["teams"][1]
+                current_game["loser_players"] = current_game["teams"][0]
 
-    session["current_match"] = match_state
-    session.modified = True
+        session["games"][-1] = current_game
+        return redirect(url_for("drawing"))
 
     return render_template(
         "game-session.html",
-        game_no=game_no,
-        team_a=team_a,
-        team_b=team_b,
+        game_no=current_game["game_no"],
+        team_a=current_game["teams"][0],
+        team_b=current_game["teams"][1],
         point_limit=session.get("point_limit", 21),
-        start_time=match_state["start_time"],
-        scoreA=match_state["scoreA"],
-        scoreB=match_state["scoreB"],
+        start_time=current_game.get("start_time"),
+        scoreA=current_game.get("scoreA", 0),
+        scoreB=current_game.get("scoreB", 0),
     )
 
-
-@app.route("/update-score", methods=["POST"])
-def update_score():
-    """AJAX endpoint to update score in session"""
-    data = request.get_json()
-    if "current_match" not in session:
-        return {"ok": False}, 400
-
-    session["current_match"]["scoreA"] = data.get("scoreA", 0)
-    session["current_match"]["scoreB"] = data.get("scoreB", 0)
-    session.modified = True
-    return {"ok": True}
 
 # -------------------- Run --------------------
 if __name__ == "__main__":

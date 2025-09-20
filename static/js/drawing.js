@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const players = ["Dimas", "Ryan", "Amin", "Steven", "Kenny", "Yulius"];
+  // players now injected from Flask (see drawing.html)
   const gameArea = document.getElementById("game-area");
   const redrawBtn = document.getElementById("redraw-btn");
 
@@ -7,9 +7,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const maxConsec = 2;
 
   function shuffle(arr) {
-    return arr.map(v => ({ v, sort: Math.random() }))
-              .sort((a, b) => a.sort - b.sort)
-              .map(({ v }) => v);
+    return arr
+      .map(v => ({ v, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ v }) => v);
   }
 
   function pickTeams() {

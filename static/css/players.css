@@ -113,6 +113,7 @@ body.players {
 .total {
   font-size: 0.95rem;
   margin: 1rem 0;
+  text-align: left;
 }
 
 /* Submit button */

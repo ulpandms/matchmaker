@@ -56,9 +56,21 @@
 
   <!-- Buttons -->
   <div class="button-row">
-    <button type="button" class="btn btn-blue" onclick="endGame()">End This Game</button>
-    <button type="button" id="nextBtn" class="btn btn-orange" disabled onclick="nextMatch()">Next Match</button>
+    <form method="POST" action="{{ url_for('game_session') }}" style="flex:1">
+      <input type="hidden" name="winner" id="winnerField" value="">
+      <button type="submit" class="btn btn-blue" onclick="setWinner('A')">End This Game</button>
+    </form>
+    <form method="POST" action="{{ url_for('drawing') }}" style="flex:1">
+      <button type="submit" class="btn btn-orange" id="nextBtn" disabled>Next Match</button>
+    </form>
   </div>
+
+  <script>
+    function setWinner(team) {
+      document.getElementById("winnerField").value = team;
+    }
+  </script>
+
 {% endblock %}
 
 {% block scripts %}

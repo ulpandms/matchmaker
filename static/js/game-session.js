@@ -1,89 +1,77 @@
 let scoreA = initialScoreA;
 let scoreB = initialScoreB;
-let seconds = 0;
-let timer = null;
-
+const limit = pointLimit;
 const durationEl = document.getElementById("duration");
 const nextBtn = document.getElementById("nextBtn");
 const teamABox = document.querySelector(".team-a-score");
 const teamBBox = document.querySelector(".team-b-score");
 const winnerMsg = document.getElementById("winner-msg");
 
-// Restore elapsed duration
-function restoreTimer() {
-  const now = new Date();
-  seconds = Math.floor((now - startTime) / 1000);
-  updateDuration();
+let timer = null;
+
+// Resume timer based on start_time from server
+function startTimer() {
+  const start = new Date(startTime);
   timer = setInterval(() => {
-    seconds++;
-    updateDuration();
+    const now = new Date();
+    const diff = Math.floor((now - start) / 1000);
+    const mins = Math.floor(diff / 60);
+    const secs = diff % 60;
+    durationEl.textContent = `${mins}’${secs.toString().padStart(2, "0")}`;
   }, 1000);
 }
+startTimer();
 
-function updateDuration() {
-  let mins = Math.floor(seconds / 60);
-  let secs = seconds % 60;
-  durationEl.textContent = `${mins}’${secs.toString().padStart(2, "0")}`;
-}
-
-function renderScores() {
-  document.getElementById("scoreA").textContent = scoreA;
-  document.getElementById("scoreB").textContent = scoreB;
-}
-
-function persistScores() {
+function syncScore() {
   fetch("/update-score", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ scoreA, scoreB }),
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({scoreA, scoreB})
   });
 }
 
 function changeScore(team, delta) {
   if (team === "A") {
-    scoreA = Math.max(0, Math.min(pointLimit, scoreA + delta));
+    scoreA = Math.max(0, Math.min(limit, scoreA + delta));
+    document.getElementById("scoreA").textContent = scoreA;
   } else {
-    scoreB = Math.max(0, Math.min(pointLimit, scoreB + delta));
+    scoreB = Math.max(0, Math.min(limit, scoreB + delta));
+    document.getElementById("scoreB").textContent = scoreB;
   }
-  renderScores();
-  persistScores();
+  syncScore();
 }
 
 function endGame() {
   clearInterval(timer);
   let winnerText = "";
+  let winnerTeam, loserTeam;
 
   if (scoreA > scoreB) {
     teamABox.classList.add("winner");
     teamBBox.classList.add("loser");
     winnerText = `Team A: ${teamA[0]} + ${teamA[1]}`;
+    winnerTeam = "A"; loserTeam = "B";
   } else if (scoreB > scoreA) {
     teamBBox.classList.add("winner");
     teamABox.classList.add("loser");
     winnerText = `Team B: ${teamB[0]} + ${teamB[1]}`;
+    winnerTeam = "B"; loserTeam = "A";
   } else {
     winnerText = "It's a tie!";
   }
 
-  winnerMsg.innerHTML = `The Winner is ${winnerText} 
-    <span class="edit-icon">
-      <img src="/static/images/pencil.svg" alt="Edit">
-    </span>`;
-
-  winnerMsg.querySelector(".edit-icon").addEventListener("click", () => {
-    teamABox.classList.remove("winner", "loser");
-    teamBBox.classList.remove("winner", "loser");
-    winnerMsg.textContent = "";
-    nextBtn.disabled = true;
-    restoreTimer();
-  });
-
+  winnerMsg.innerHTML = `The Winner is ${winnerText}`;
   nextBtn.disabled = false;
+
+  fetch("/end-match", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({winner: winnerTeam, loser: loserTeam, scoreA, scoreB})
+  });
 }
 
 function nextMatch() {
-  window.location.href = "/drawing";
+  fetch("/next-match", {method: "POST"}).then(() => {
+    window.location.href = "/drawing";
+  });
 }
-
-renderScores();
-restoreTimer();

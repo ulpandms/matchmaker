@@ -90,21 +90,23 @@ class GameDetail(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     game_no = db.Column(db.Integer, nullable=False)
-    match_id = db.Column(db.String(32), nullable=False, default=generate_match_id)
+    match_id = db.Column(db.String(32), nullable=True)  # optional
     game_id = db.Column(db.String(24), db.ForeignKey("gameinfo.game_id"), nullable=False)
 
     court_no = db.Column(db.String(20), nullable=False)
-    team_a_players = db.Column(db.String(255), nullable=True)  # e.g. "Dimas,Kenny"
-    team_b_players = db.Column(db.String(255), nullable=True)  # e.g. "Ryan,Amin"
 
-    score_a = db.Column(db.Integer, default=0)   # 👈 NEW
-    score_b = db.Column(db.Integer, default=0)   # 👈 NEW
+    # ✅ new fields
+    team_a_players = db.Column(db.String(255), nullable=False)
+    team_b_players = db.Column(db.String(255), nullable=False)
 
-    winner_flag = db.Column(db.String(1), nullable=True)
+    score_a = db.Column(db.Integer, default=0)
+    score_b = db.Column(db.Integer, default=0)
+    winner_flag = db.Column(db.String(1), nullable=True)  # A / B / T
 
-    match_start_at = db.Column(db.DateTime, default=now_jakarta)
+    match_start_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     match_end_at = db.Column(db.DateTime, nullable=True)
     match_duration = db.Column(db.String(20), nullable=True)
+
 
     def end_match(self):
         self.match_end_at = now_jakarta()

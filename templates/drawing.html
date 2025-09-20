@@ -39,7 +39,15 @@
 
   <!-- Buttons -->
   <form method="POST" class="button-row">
-    <button type="submit" name="action" value="redraw" class="btn btn-blue">Re-Draw</button>
+    <button type="submit" name="action" value="redraw" class="btn btn-blue" id="redraw-btn">Re-Draw</button>
     <button type="submit" name="action" value="next" class="btn btn-orange">Game On!</button>
   </form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Inject players list into JS (used in drawing.js)
+  const players = {{ players|tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/drawing.js') }}"></script>
 {% endblock %}
