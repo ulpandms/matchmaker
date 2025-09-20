@@ -1,20 +1,8 @@
-/* -----------------------------------------------------------------------------
-   Players Page Styles
------------------------------------------------------------------------------ */
-
-/* Aptos Narrow */
 @font-face {
   font-family: "AptosNarrow";
   src: url("/static/fonts/Aptos-Narrow.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow: hidden; /* prevent scrollbars */
 }
 
 body.players {
@@ -29,35 +17,9 @@ body.players {
   max-width: 480px;
   margin: 0 auto;
   padding: 2rem 1.5rem;
-  height: 100%;
-  box-sizing: border-box;
-  overflow: hidden;
+  text-align: center;
 }
 
-/* Header */
-.header-title {
-  display: inline-block;
-  font-weight: 700;
-  font-size: 2rem;
-  color: #ff7a00;
-  margin-bottom: 1.5rem;
-  text-decoration: none;
-}
-.header-title:hover {
-  opacity: 0.85;
-}
-
-/* Intro */
-.intro {
-  font-size: 1.75rem;
-  margin-bottom: 0.25rem;
-}
-.divider {
-  height: 0.5px;
-  background: #111;
-  margin: 0 0 1.5rem;
-  border: none;
-}
 
 /* Player rows */
 .squad {
@@ -178,4 +140,16 @@ body.players {
 }
 .btn-submit.active:active {
   transform: translateY(1px);
+}
+
+
+/* Override Chrome autofill yellow/blue background */
+body.players input:-webkit-autofill,
+body.players input:-webkit-autofill:hover,
+body.players input:-webkit-autofill:focus,
+body.players input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px #fff inset !important; /* force white */
+  -webkit-text-fill-color: #111 !important; /* text stays dark */
+  caret-color: #111 !important;
+  transition: background-color 5000s ease-in-out 0s; /* prevent flicker */
 }

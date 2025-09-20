@@ -1,3 +1,12 @@
+/* Reset defaults */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+
 /* Shared Header + Layout Sections */
 .app-header {
   text-align: left;
@@ -18,13 +27,14 @@
 
 /* Intro */
 .intro {
-  font-size: 1.5rem;
+  font-size: 2rem;
   margin-bottom: 0.25rem;
   text-align: left;
 }
 
 .intro strong {
   color: #ff7a00;
+  font-weight: normal;
 }
 
 /* Divider */

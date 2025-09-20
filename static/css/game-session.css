@@ -9,6 +9,8 @@ body.game-session {
   font-family: "AptosNarrow", sans-serif;
   background: #fff;
   color: #111;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body.game-session .container {

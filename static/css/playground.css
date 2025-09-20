@@ -1,27 +1,9 @@
-/* -----------------------------------------------------------------------------
-   Playground Setup Page Styles
------------------------------------------------------------------------------ */
-
-/* Global reset for consistent sizing */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
 /* Aptos Narrow */
 @font-face {
   font-family: "AptosNarrow";
   src: url("/static/fonts/Aptos-Narrow.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow: hidden;
 }
 
 body.playground {
@@ -36,35 +18,9 @@ body.playground .container {
   max-width: 480px;
   margin: 0 auto;
   padding: 2rem 1.5rem;
-  height: 100%;
-  overflow: hidden;
+  text-align: center;
 }
 
-/* Header */
-body.playground .header-title {
-  display: inline-block;
-  font-weight: 700;
-  font-size: 2rem;
-  color: #ff7a00;
-  margin-bottom: 1.5rem;
-  letter-spacing: 0.5px;
-  text-decoration: none;
-}
-body.playground .header-title:hover {
-  opacity: 0.85;
-}
-
-/* Intro */
-body.playground .intro {
-  font-size: 2rem;
-  margin-bottom: 0.25rem;
-}
-body.playground .divider {
-  height: 0.5px;
-  background: #111;
-  margin: 0rem 0 2rem;
-  border: none;
-}
 
 /* Form */
 body.playground form {
@@ -73,6 +29,7 @@ body.playground form {
 body.playground label {
   display: block;
   font-size: 0.95rem;
+  text-align: left;
   margin-bottom: 0.35rem;
 }
 
@@ -107,7 +64,8 @@ body.playground select:focus {
 body.playground input[type="number"] {
   display: block;
   width: 100%;
-  padding: 0.85rem 3rem 0.85rem 1rem; /* space for check icon */
+  box-sizing: border-box;   /* ✅ keep it inside the container */
+  padding: 0.85rem 2.5rem 0.85rem 1rem; /* match spacing with others */
   font-family: "AptosNarrow", sans-serif;
   font-size: 1rem;
   border: 1px solid #ddd;
