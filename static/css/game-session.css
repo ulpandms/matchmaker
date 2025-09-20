@@ -45,6 +45,21 @@ body.game-session .teams {
   border-radius: 8px;
 }
 
+/* Vs circle */
+body.game-session .vs-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #D9D9D9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #111;
+}
+
+
 body.game-session .team-box {
   justify-content: center;
   align-items: center;
@@ -67,19 +82,6 @@ body.game-session .team-b .player {
   padding: 0 0.3em;
 }
 
-/* Vs circle */
-body.game-session .vs-circle {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: #D9D9D9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 1rem;
-  color: #111;
-}
 
 /* Scoreboard */
 body.game-session .scoreboard {
@@ -89,13 +91,22 @@ body.game-session .scoreboard {
   gap: 1rem;
 }
 
-body.game-session .score {
+body.game-session .score-column {
   flex: 1;
-  border-radius: 8px;
-  padding: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 0.75rem; /* space between score box and controls */
+}
+
+/* Score box */
+body.game-session .score-box {
+  width: 100%;
+  border-radius: 8px;
+  padding: 1rem 0; /* taller block */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 body.game-session .team-a-score {
@@ -106,36 +117,37 @@ body.game-session .team-b-score {
 }
 
 body.game-session .score-number {
-  font-size: 3rem;
+  font-size: 4rem;
   font-weight: bold;
-  margin-bottom: 0.75rem;
 }
 
+/* Controls outside the box */
 body.game-session .controls {
   display: flex;
   gap: 0.75rem;
 }
 
 body.game-session .btn-control {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 5.3rem;
+  height: 1.5rem;
   border: none;
   border-radius: 6px;
-  background: #fff;
+  background: #d9d9d9;
   font-size: 1.25rem;
   cursor: pointer;
   font-weight: bold;
 }
 body.game-session .btn-control:hover {
-  background: #eee;
+  background: #bbb;
 }
+
 
 /* Duration */
 body.game-session .duration {
   margin: 1rem 0;
   font-size: 0.95rem;
   color: #444;
-  text-align: center;
+  text-align: left;
 }
 
 /* Buttons */
@@ -150,16 +162,42 @@ body.game-session .btn {
   border: none;
   border-radius: 8px;
   font-size: 1rem;
-  font-weight: 600;
   color: #fff;
   cursor: pointer;
 }
-body.game-session .btn-blue {
-  background: #3b82f6;
+body.game-session .btn-blue { background: #3b82f6; }
+body.game-session .btn-orange { background: #ff7a00; }
+
+body.game-session .btn:disabled {
+  background: #d9d9d9;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
-body.game-session .btn-orange {
-  background: #ff7a00;
+
+/* Winner/loser styles */
+body.game-session .winner {
+  opacity: 1;
 }
-body.game-session .btn:hover {
-  opacity: 0.9;
+body.game-session .loser {
+  opacity: 0.4;
+}
+
+/* Winner message with pencil */
+body.game-session .winner-msg {
+  font-weight: 600;
+  color: #111;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+body.game-session .winner-msg .edit-icon {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+body.game-session .winner-msg .edit-icon img {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
