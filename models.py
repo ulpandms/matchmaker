@@ -89,20 +89,16 @@ class GameDetail(db.Model):
     __tablename__ = "game_details"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-
     game_no = db.Column(db.Integer, nullable=False)
     match_id = db.Column(db.String(32), nullable=False, default=generate_match_id)
-
     game_id = db.Column(db.String(24), db.ForeignKey("gameinfo.game_id"), nullable=False)
 
     court_no = db.Column(db.String(20), nullable=False)
-    team_side = db.Column(db.String(10), nullable=False)
+    team_a_players = db.Column(db.String(255), nullable=True)  # e.g. "Dimas,Kenny"
+    team_b_players = db.Column(db.String(255), nullable=True)  # e.g. "Ryan,Amin"
 
-    player_code = db.Column(db.String(10), nullable=False)
-    player_id = db.Column(db.String(10), nullable=False)
-
-    player_match_number = db.Column(db.Integer, nullable=False)
-    collected_score = db.Column(db.Integer, default=0)
+    score_a = db.Column(db.Integer, default=0)   # 👈 NEW
+    score_b = db.Column(db.Integer, default=0)   # 👈 NEW
 
     winner_flag = db.Column(db.String(1), nullable=True)
 
@@ -111,10 +107,10 @@ class GameDetail(db.Model):
     match_duration = db.Column(db.String(20), nullable=True)
 
     def end_match(self):
-        """Mark match as ended, set match_end_at and duration"""
         self.match_end_at = now_jakarta()
         if self.match_start_at:
             delta = self.match_end_at - self.match_start_at
             self.match_duration = str(delta).split(".")[0]
         else:
             self.match_duration = None
+

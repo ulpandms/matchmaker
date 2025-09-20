@@ -2,9 +2,8 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_migrate import Migrate
 from models import db, GameInfo, Playground, Player, GameDetail
-
 from logic import mexicano
-
+import datetime
 
 app = Flask(__name__)
 app.secret_key = "dev"
@@ -17,11 +16,12 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 migrate = Migrate(app, db)
 
-# -------------------- Routes --------------------
 
+# -------------------- Routes --------------------
 @app.route("/")
 def home():
     return render_template("index.html")
+
 
 # ---------- Game Plan ----------
 @app.route("/game-plan", methods=["GET", "POST"])
@@ -45,6 +45,7 @@ def game_plan():
         return redirect(url_for("playground"))
 
     return render_template("game-plan.html")
+
 
 # ---------- Playground ----------
 @app.route("/playground", methods=["GET", "POST"])
@@ -76,6 +77,7 @@ def playground():
 
     return render_template("playground.html")
 
+
 # ---------- Players ----------
 @app.route("/players", methods=["GET", "POST"])
 def players():
@@ -100,6 +102,7 @@ def players():
         return redirect(url_for("drawing"))
 
     return render_template("players.html")
+
 
 # ---------- Drawing ----------
 @app.route("/drawing", methods=["GET", "POST"])
@@ -148,6 +151,9 @@ def drawing():
                 "game_no": current_game["game_no"],
                 "team_a": current_game["teams"][0],
                 "team_b": current_game["teams"][1],
+                "start_time": session.get("current_match", {}).get("start_time")
+                               or datetime.datetime.now().isoformat(),  # persist start
+                "ended": False
             }
 
             return redirect(url_for("game_session"))
@@ -157,6 +163,7 @@ def drawing():
 
     return render_template("drawing.html", games=games)
 
+
 # ---------- Game Session ----------
 @app.route("/game-session", methods=["GET", "POST"])
 def game_session():
@@ -164,25 +171,49 @@ def game_session():
     if not game_id:
         return redirect(url_for("game_plan"))
 
-    match = session.get("current_match")
-    if not match:
+    last_game = session.get("games", [])[-1] if session.get("games") else None
+    if not last_game:
         return redirect(url_for("drawing"))
 
-    # Pull point_limit from playground settings
-    playground = Playground.query.filter_by(game_id=game_id).first()
-    point_limit = playground.point_limit if playground else 21
+    team_a = last_game["teams"][0]
+    team_b = last_game["teams"][1]
+    game_no = last_game["game_no"]
 
-    team_a = match["team_a"]
-    team_b = match["team_b"]
-    game_no = match["game_no"]
+    # Ensure match state is initialized
+    match_state = session.get("current_match", {})
+    if "start_time" not in match_state:
+        match_state["start_time"] = datetime.datetime.now().isoformat()
+    if "scoreA" not in match_state:
+        match_state["scoreA"] = 0
+    if "scoreB" not in match_state:
+        match_state["scoreB"] = 0
+
+    session["current_match"] = match_state
+    session.modified = True
 
     return render_template(
         "game-session.html",
         game_no=game_no,
         team_a=team_a,
         team_b=team_b,
-        point_limit=point_limit,
+        point_limit=session.get("point_limit", 21),
+        start_time=match_state["start_time"],
+        scoreA=match_state["scoreA"],
+        scoreB=match_state["scoreB"],
     )
+
+
+@app.route("/update-score", methods=["POST"])
+def update_score():
+    """AJAX endpoint to update score in session"""
+    data = request.get_json()
+    if "current_match" not in session:
+        return {"ok": False}, 400
+
+    session["current_match"]["scoreA"] = data.get("scoreA", 0)
+    session["current_match"]["scoreB"] = data.get("scoreB", 0)
+    session.modified = True
+    return {"ok": True}
 
 # -------------------- Run --------------------
 if __name__ == "__main__":
