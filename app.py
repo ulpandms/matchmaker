@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session
 from flask_migrate import Migrate
 from models import db, GameInfo, Playground, Player, Drawing, MatchDetail
 from logic.loader import load_logic
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 import uuid
 
@@ -23,14 +23,31 @@ def now_jakarta():
     """Return current datetime in Asia/Jakarta tz (GMT+7)."""
     return datetime.now(TZ)
 
+def to_jakarta_naive(dt: datetime) -> datetime:
+    """Ensure datetime is naive in Jakarta timezone for DB storage."""
+    if dt.tzinfo is not None:
+        return dt.astimezone(TZ).replace(tzinfo=None)
+    return dt
+
 # -------------------- Helpers --------------------
 def get_logic():
     """Load logic module based on current playground & players."""
-    players = session.get("players", [])
-    players_count = len(players)
-
     game_id = session.get("current_game_id")
     if not game_id:
+        return None
+
+    players = session.get("players")
+    if not players:
+        players = [
+            p.player_name
+            for p in Player.query.filter_by(game_id=game_id).order_by(Player.player_code).all()
+        ]
+        if players:
+            session["players"] = players
+            session.modified = True
+
+    players_count = len(players or [])
+    if players_count == 0:
         return None
 
     playground = Playground.query.filter_by(game_id=game_id).first()
@@ -67,7 +84,14 @@ def game_plan():
         db.session.add(new_game)
         db.session.commit()
 
+        session.clear()
         session["current_game_id"] = new_game.game_id
+        session["games"] = []
+        session["pending_game"] = None
+        session["active_game"] = None
+        session["players"] = []
+        session.modified = True
+
         return redirect(url_for("playground"))
 
     return render_template("game-plan.html")
@@ -127,6 +151,12 @@ def players():
         db.session.commit()
         print(f"✅ [DB] {len(form_players)} players saved for game {game_id}")
 
+        session["players"] = form_players
+        session["games"] = []
+        session["pending_game"] = None
+        session["active_game"] = None
+        session.modified = True
+
         # After players saved, jump to drawing page
         return redirect(url_for("drawing"))
 
@@ -139,101 +169,299 @@ def drawing():
     if not game_id:
         return redirect(url_for("game_plan"))
 
-    # ✅ Always load players from DB
-    players_db = Player.query.filter_by(game_id=game_id).all()
+    players_db = Player.query.filter_by(game_id=game_id).order_by(Player.player_code).all()
     players = [p.player_name for p in players_db]
 
     if not players:
         return redirect(url_for("players"))
 
-    if "games" not in session:
-        session["games"] = []
-
-    games = session["games"]
     logic = get_logic()
     if not logic:
         return "No matching game logic found", 500
 
-    # ✅ If no games yet, auto-generate the first one
-    if not games:
-        first_game = logic.next_game(players, [])
-        if first_game:
-            games.append(first_game)
-            session["games"] = games
+    locked_games = session.get("games") or []
+    pending_game = session.get("pending_game")
+
+    if not pending_game:
+        next_number = len(locked_games) + 1
+        candidate = logic.next_game(players, locked_games, force_no=next_number)
+        if candidate:
+            candidate.setdefault("teams", [])
+            candidate["game_no"] = next_number
+            pending_game = candidate
+            session["pending_game"] = pending_game
+            session.modified = True
 
     if request.method == "POST":
         action = request.form.get("action")
 
         if action == "redraw":
-            if games:
-                # reshuffle but keep same game_no
-                games[-1] = logic.next_game(players, games[:-1],
-                                            force_no=games[-1]["game_no"])
-        elif action == "next":
-            new_game = logic.next_game(players, games)
-            if new_game:
-                # Store drawing rows into DB
-                for side, team in enumerate(new_game["teams"], start=1):
-                    for idx, player_name in enumerate(team, start=1):
-                        player_obj = next((p for p in players_db if p.player_name == player_name), None)
-                        drawing_row = Drawing(
-                            game_id=game_id,
-                            game_no=new_game["game_no"],
-                            court_no="A",  # still only 1 court
-                            team_side=f"Team {side}",
-                            player_code=player_obj.player_code if player_obj else f"P-{idx:02}",
-                            player_id=player_obj.player_id if player_obj else str(uuid.uuid4().hex[:10]),
-                            player_match_number=idx,
-                            match_id=new_game["match_id"],
-                            match_start_at=new_game["start_time"]
-                        )
-                        db.session.add(drawing_row)
-                db.session.commit()
+            if pending_game:
+                force_no = pending_game.get("game_no") or len(locked_games) + 1
+                candidate = logic.next_game(players, locked_games, force_no=force_no)
+                if candidate:
+                    candidate.setdefault("teams", [])
+                    candidate["game_no"] = force_no
+                    pending_game = candidate
+                    session["pending_game"] = pending_game
+                    session.modified = True
+            return redirect(url_for("drawing"))
 
-                games.append(new_game)
+        if action == "next":
+            if not pending_game:
+                return redirect(url_for("drawing"))
 
-            session["games"] = games
+            match_id = pending_game.get("match_id") or uuid.uuid4().hex
+            start_time = pending_game.get("start_time")
+            if isinstance(start_time, datetime):
+                start_time = start_time.isoformat()
+            if not start_time:
+                start_time = now_jakarta().isoformat()
+
+            pending_game["match_id"] = match_id
+            pending_game["start_time"] = start_time
+            pending_game.setdefault("scoreA", 0)
+            pending_game.setdefault("scoreB", 0)
+            pending_game.setdefault("elapsed_seconds", 0)
+            pending_game["resume_time"] = start_time
+            pending_game["status"] = "active"
+
+            start_dt = to_jakarta_naive(datetime.fromisoformat(start_time))
+
+            existing_draws = Drawing.query.filter_by(game_id=game_id).all()
+            match_counts = {}
+            for draw in existing_draws:
+                match_counts[draw.player_id] = match_counts.get(draw.player_id, 0) + 1
+
+            for side, team in enumerate(pending_game.get("teams", []), start=1):
+                team_label = "A" if side == 1 else "B"
+                for idx, player_name in enumerate(team, start=1):
+                    player_obj = next((p for p in players_db if p.player_name == player_name), None)
+                    player_code = player_obj.player_code if player_obj else f"P-{idx:02}"
+                    player_id = player_obj.player_id if player_obj else uuid.uuid4().hex[:10]
+
+                    match_counts[player_id] = match_counts.get(player_id, 0) + 1
+
+                    drawing_row = Drawing(
+                        game_id=game_id,
+                        game_no=pending_game["game_no"],
+                        court_no="A",  # TODO: support multiple courts
+                        team_side=team_label,
+                        player_code=player_code,
+                        player_id=player_id,
+                        player_match_number=match_counts[player_id],
+                        match_id=match_id,
+                        match_start_at=start_dt,
+                    )
+                    db.session.add(drawing_row)
+            db.session.commit()
+
+            locked_games.append(pending_game)
+            session["games"] = locked_games
+            session["active_game"] = pending_game
+            session["pending_game"] = None
+            session.modified = True
+
             return redirect(url_for("game_session"))
 
-    return render_template("drawing.html", games=games, players=players)
+    return render_template(
+        "drawing.html",
+        players=players,
+        pending_game=pending_game,
+        games=locked_games,
+    )
 
 
 # ---------- Game Session ----------
 @app.route("/game-session", methods=["GET", "POST"])
 def game_session():
-    games = session.get("games", [])
-    if not games:
+    active_game = session.get("active_game")
+    if not active_game:
         return redirect(url_for("drawing"))
 
-    current_game = games[-1]
+    error_message = None
+    ended = active_game.get("status") == "ended"
+    winner_side = active_game.get("winner")
+    loser_side = None
+    if winner_side in {"A", "B"}:
+        loser_side = "B" if winner_side == "A" else "A"
 
     if request.method == "POST":
-        # Called when "End This Game" is clicked
-        winner = request.form.get("winner")
-        if winner:
-            detail = MatchDetail(
-                match_id=current_game["match_id"],
-                team_side=winner,
-                team_side_score=current_game.get("scoreA" if winner == "A" else "scoreB", 0),
-                winner_flag="W",
-                match_start_at=current_game.get("start_time", now_jakarta()),
-                match_end_at=now_jakarta(),  # ✅ GMT+7
-            )
-            db.session.add(detail)
-            db.session.commit()
+        action = request.form.get("action")
 
-        return redirect(url_for("drawing"))
+        if action == "end":
+            score_a = int(request.form.get("scoreA") or active_game.get("scoreA", 0) or 0)
+            score_b = int(request.form.get("scoreB") or active_game.get("scoreB", 0) or 0)
+            winner = request.form.get("winner")
+            if winner not in {"A", "B", "T"}:
+                if score_a > score_b:
+                    winner = "A"
+                elif score_b > score_a:
+                    winner = "B"
+                else:
+                    winner = "T"
+
+            end_dt = now_jakarta()
+            ended_at = end_dt.isoformat()
+
+            resume_iso = active_game.get("resume_time") or active_game.get("start_time")
+            elapsed_total = int(active_game.get("elapsed_seconds", 0) or 0)
+            if resume_iso:
+                try:
+                    resume_dt = datetime.fromisoformat(resume_iso)
+                    elapsed_total += max(0, int((end_dt - resume_dt).total_seconds()))
+                except ValueError:
+                    pass
+            active_game["elapsed_seconds"] = elapsed_total
+            active_game["resume_time"] = None
+
+            active_game["scoreA"] = score_a
+            active_game["scoreB"] = score_b
+            active_game["winner"] = winner
+            active_game["status"] = "ended"
+            active_game["ended_at"] = ended_at
+            active_game["result_pending"] = {
+                "winner": winner,
+                "scoreA": score_a,
+                "scoreB": score_b,
+                "ended_at": ended_at,
+                "elapsed_seconds": elapsed_total,
+            }
+            session["active_game"] = active_game
+            session.modified = True
+
+            ended = True
+            winner_side = winner
+            loser_side = None
+            if winner_side in {"A", "B"}:
+                loser_side = "B" if winner_side == "A" else "A"
+
+        elif action == "revise":
+            for key in ("status", "winner", "ended_at", "result_pending"):
+                active_game.pop(key, None)
+            active_game.setdefault("elapsed_seconds", 0)
+            active_game["resume_time"] = now_jakarta().isoformat()
+            active_game["status"] = "active"
+            session["active_game"] = active_game
+            session.modified = True
+            ended = False
+            winner_side = None
+            loser_side = None
+
+        elif action == "next":
+            result = active_game.get("result_pending")
+            if not result:
+                error_message = "End the current game before starting the next match."
+            else:
+                game_id = session.get("current_game_id")
+                if not game_id:
+                    return redirect(url_for("game_plan"))
+
+                match_id = active_game.get("match_id") or uuid.uuid4().hex
+                active_game["match_id"] = match_id
+
+                start_iso = active_game.get("start_time")
+                if not start_iso:
+                    start_iso = now_jakarta().isoformat()
+                    active_game["start_time"] = start_iso
+
+                if isinstance(start_iso, datetime):
+                    start_iso = start_iso.isoformat()
+                    active_game["start_time"] = start_iso
+
+                end_iso = result.get("ended_at") or now_jakarta().isoformat()
+                result["ended_at"] = end_iso
+
+                start_dt = to_jakarta_naive(datetime.fromisoformat(start_iso))
+                end_dt = to_jakarta_naive(datetime.fromisoformat(end_iso))
+
+                players_db = Player.query.filter_by(game_id=game_id).order_by(Player.player_code).all()
+                players_map = {p.player_name: p for p in players_db}
+
+                elapsed_total = int(active_game.get("elapsed_seconds", 0) or 0)
+                duration_delta = timedelta(seconds=elapsed_total)
+                duration_str = str(duration_delta).split(".")[0]
+
+                for side_index, team in enumerate(active_game.get("teams", []), start=1):
+                    team_side = "A" if side_index == 1 else "B"
+                    score = result["scoreA"] if team_side == "A" else result["scoreB"]
+                    if result["winner"] == "T":
+                        flag = "T"
+                    else:
+                        flag = "W" if team_side == result["winner"] else "L"
+
+                    for player_name in team:
+                        player_obj = players_map.get(player_name)
+                        player_id = player_obj.player_id if player_obj else uuid.uuid4().hex[:10]
+                        detail = MatchDetail(
+                            match_id=match_id,
+                            player_id=player_id,
+                            team_side=team_side,
+                            team_side_score=score,
+                            winner_flag=flag,
+                            match_start_at=start_dt,
+                            match_end_at=end_dt,
+                            match_duration=duration_str,
+                        )
+                        db.session.add(detail)
+
+                db.session.commit()
+
+                locked_games = session.get("games") or []
+                for idx, stored in enumerate(locked_games):
+                    if stored.get("match_id") == match_id:
+                        locked_games[idx] = active_game
+                        break
+                else:
+                    locked_games.append(active_game)
+                session["games"] = locked_games
+
+                active_game["status"] = "completed"
+                active_game["completed_at"] = end_iso
+                active_game.pop("result_pending", None)
+                session["active_game"] = None
+                session["pending_game"] = None
+                session.modified = True
+
+                return redirect(url_for("drawing"))
+
+    ended = active_game.get("status") == "ended"
+    winner_side = active_game.get("winner")
+    loser_side = None
+    if winner_side in {"A", "B"}:
+        loser_side = "B" if winner_side == "A" else "A"
+
+    teams = active_game.get("teams") or []
+
+    def normalize_team(team):
+        team_list = list(team or [])
+        while len(team_list) < 2:
+            team_list.append("-")
+        return team_list[:2]
+
+    team_a_names = normalize_team(teams[0] if len(teams) > 0 else [])
+    team_b_names = normalize_team(teams[1] if len(teams) > 1 else [])
 
     return render_template(
         "game-session.html",
-        game_no=current_game["game_no"],
-        team_a=current_game["teams"][0],
-        team_b=current_game["teams"][1],
+        game_no=active_game.get("game_no"),
+        team_a=team_a_names,
+        team_b=team_b_names,
+        team_a_names=team_a_names,
+        team_b_names=team_b_names,
         point_limit=session.get("point_limit", 21),
-        start_time=current_game.get("start_time"),
-        scoreA=current_game.get("scoreA", 0),
-        scoreB=current_game.get("scoreB", 0),
+        start_time=active_game.get("start_time"),
+        scoreA=int(active_game.get("scoreA", 0) or 0),
+        scoreB=int(active_game.get("scoreB", 0) or 0),
+        ended=ended,
+        winner_side=winner_side,
+        loser_side=loser_side,
+        error_message=error_message,
+        ended_at=active_game.get("ended_at"),
+        elapsed_seconds=int(active_game.get("elapsed_seconds", 0) or 0),
+        resume_time=active_game.get("resume_time") or active_game.get("start_time"),
     )
+
 
 # -------------------- Run --------------------
 if __name__ == "__main__":

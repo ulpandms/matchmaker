@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Drawing · Match Maker{% endblock %}
+{% block title %}Drawing - Match Maker{% endblock %}
 {% block body_class %}drawing{% endblock %}
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/drawing.css') }}">
@@ -11,43 +11,36 @@
 {% endblock %}
 
 {% block content %}
-  {% if games %}
-    {% set game = games[-1] %}
+  {% if pending_game %}
     <div class="game-info">
-      <h2>Game #{{ game.game_no }}</h2>
+      <h2>Game #{{ pending_game.game_no }}</h2>
+      <p class="court">(Court A)</p>
     </div>
 
-    <!-- Team A -->
+    {% set team_a = pending_game.teams[0] if pending_game.teams|length > 0 else ['-', '-'] %}
+    {% set team_b = pending_game.teams[1] if pending_game.teams|length > 1 else ['-', '-'] %}
+
     <div class="team-box">
-      <span class="player team-a">{{ game.teams[0][0] }}</span>
+      <span class="player team-a">{{ team_a[0] }}</span>
       <span class="plus">+</span>
-      <span class="player team-a">{{ game.teams[0][1] }}</span>
+      <span class="player team-a">{{ team_a[1] }}</span>
     </div>
 
-    <!-- Vs -->
     <div class="vs">vs</div>
 
-    <!-- Team B -->
     <div class="team-box">
-      <span class="player team-b">{{ game.teams[1][0] }}</span>
+      <span class="player team-b">{{ team_b[0] }}</span>
       <span class="plus">+</span>
-      <span class="player team-b">{{ game.teams[1][1] }}</span>
+      <span class="player team-b">{{ team_b[1] }}</span>
     </div>
   {% else %}
-    <p>No games yet. Click <strong>Game On!</strong> to start.</p>
+    <p>No games available yet. Click <strong>Game On!</strong> to generate the first pairing.</p>
   {% endif %}
 
-  <!-- Buttons -->
   <form method="POST" class="button-row">
-    <button type="submit" name="action" value="redraw" class="btn btn-blue" id="redraw-btn">Re-Draw</button>
-    <button type="submit" name="action" value="next" class="btn btn-orange">Game On!</button>
+    <button type="submit" name="action" value="redraw" class="btn btn-blue" id="redraw-btn" {% if not pending_game %}disabled{% endif %}>Re-Draw</button>
+    <button type="submit" name="action" value="next" class="btn btn-orange" {% if not pending_game %}disabled{% endif %}>Game On!</button>
   </form>
 {% endblock %}
 
-{% block scripts %}
-<script>
-  // Inject players list into JS (used in drawing.js)
-  const players = {{ players|tojson }};
-</script>
-<script src="{{ url_for('static', filename='js/drawing.js') }}"></script>
-{% endblock %}
+{% block scripts %}{% endblock %}

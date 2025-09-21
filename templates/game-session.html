@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Game Session · Match Maker{% endblock %}
+{% block title %}Game Session - Match Maker{% endblock %}
 {% block body_class %}game-session{% endblock %}
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/game-session.css') }}">
@@ -11,76 +11,95 @@
 {% endblock %}
 
 {% block content %}
-  <!-- Game Info -->
   <div class="game-info">
     <h2>Game #{{ game_no }}</h2>
     <p class="court">(Court A)</p>
   </div>
 
-  <!-- Teams -->
   <div class="teams">
-    <div class="team-box team-a">
-      <span class="player">{{ team_a[0] }}</span> + <span class="player">{{ team_a[1] }}</span>
+    <div class="team-box team-a {% if ended and winner_side == 'A' %}winner{% elif ended and loser_side == 'A' %}loser{% endif %}">
+      <span class="player">{{ team_a_names[0] }}</span> + <span class="player">{{ team_a_names[1] }}</span>
     </div>
     <div class="vs-circle">Vs</div>
-    <div class="team-box team-b">
-      <span class="player">{{ team_b[0] }}</span> + <span class="player">{{ team_b[1] }}</span>
+    <div class="team-box team-b {% if ended and winner_side == 'B' %}winner{% elif ended and loser_side == 'B' %}loser{% endif %}">
+      <span class="player">{{ team_b_names[0] }}</span> + <span class="player">{{ team_b_names[1] }}</span>
     </div>
   </div>
 
-  <!-- Scoreboard -->
+  {% if error_message %}
+    <p class="error">{{ error_message }}</p>
+  {% endif %}
+
   <div class="scoreboard">
     <div class="score-column">
-      <div class="score-box team-a-score">
-        <div class="score-number" id="scoreA">0</div>
+      <div class="score-box team-a-score {% if ended and winner_side == 'A' %}winner{% elif ended and loser_side == 'A' %}loser{% endif %}">
+        <div class="score-number" id="scoreA">{{ scoreA }}</div>
       </div>
       <div class="controls">
-        <button type="button" class="btn-control" onclick="changeScore('A', -1)">−</button>
-        <button type="button" class="btn-control" onclick="changeScore('A', 1)">+</button>
+        <button type="button" class="btn-control" onclick="changeScore('A', -1)" {% if ended %}disabled{% endif %}>-</button>
+        <button type="button" class="btn-control" onclick="changeScore('A', 1)" {% if ended %}disabled{% endif %}>+</button>
       </div>
     </div>
     <div class="score-column">
-      <div class="score-box team-b-score">
-        <div class="score-number" id="scoreB">0</div>
+      <div class="score-box team-b-score {% if ended and winner_side == 'B' %}winner{% elif ended and loser_side == 'B' %}loser{% endif %}">
+        <div class="score-number" id="scoreB">{{ scoreB }}</div>
       </div>
       <div class="controls">
-        <button type="button" class="btn-control" onclick="changeScore('B', 1)">+</button>
-        <button type="button" class="btn-control" onclick="changeScore('B', -1)">−</button>
+        <button type="button" class="btn-control" onclick="changeScore('B', 1)" {% if ended %}disabled{% endif %}>+</button>
+        <button type="button" class="btn-control" onclick="changeScore('B', -1)" {% if ended %}disabled{% endif %}>-</button>
       </div>
     </div>
   </div>
 
-  <!-- Duration -->
-  <p class="duration">Game Duration: <span id="duration">0’</span></p>
-  <p id="winner-msg" class="winner-msg"></p>
+  <p class="duration">Game Duration: <span id="duration">--:--</span></p>
 
-  <!-- Buttons -->
+  {% if ended %}
+    <div id="winner-msg" class="winner-msg">
+      <span>
+        {% if winner_side == 'T' %}
+          It's a tie!
+        {% else %}
+          Winner: Team {{ winner_side }} ({{ team_a_names|join(' + ') if winner_side == 'A' else team_b_names|join(' + ') }})
+        {% endif %}
+      </span>
+      <form method="POST" action="{{ url_for('game_session') }}" class="revise-form">
+        <input type="hidden" name="action" value="revise">
+        <button type="submit" class="revise-button" title="Revise score" aria-label="Revise score">
+          <img src="{{ url_for('static', filename='images/pencil.svg') }}" alt="">
+        </button>
+      </form>
+    </div>
+  {% else %}
+    <p id="winner-msg" class="winner-msg"></p>
+  {% endif %}
+
   <div class="button-row">
-    <form method="POST" action="{{ url_for('game_session') }}" style="flex:1">
-      <input type="hidden" name="winner" id="winnerField" value="">
-      <button type="submit" class="btn btn-blue" onclick="setWinner('A')">End This Game</button>
+    <form method="POST" action="{{ url_for('game_session') }}" id="endForm" class="action-form">
+      <input type="hidden" name="action" value="end">
+      <input type="hidden" name="winner" id="winnerField" value="{{ winner_side or '' }}">
+      <input type="hidden" name="scoreA" id="scoreAField" value="{{ scoreA }}">
+      <input type="hidden" name="scoreB" id="scoreBField" value="{{ scoreB }}">
+      <button type="submit" class="btn btn-blue" onclick="prepareEndGame(event)" {% if ended %}disabled{% endif %}>End This Game</button>
     </form>
-    <form method="POST" action="{{ url_for('drawing') }}" style="flex:1">
-      <button type="submit" class="btn btn-orange" id="nextBtn" disabled>Next Match</button>
+    <form method="POST" action="{{ url_for('game_session') }}" class="action-form">
+      <input type="hidden" name="action" value="next">
+      <button type="submit" class="btn btn-orange" id="nextBtn" {% if not ended %}disabled{% endif %}>Next Match</button>
     </form>
   </div>
-
-  <script>
-    function setWinner(team) {
-      document.getElementById("winnerField").value = team;
-    }
-  </script>
-
 {% endblock %}
 
 {% block scripts %}
 <script>
   const pointLimit = {{ point_limit|default(21) }};
-  const teamA = {{ team_a|tojson }};
-  const teamB = {{ team_b|tojson }};
-  const startTime = new Date("{{ start_time }}");
-  let initialScoreA = {{ scoreA }};
-  let initialScoreB = {{ scoreB }};
+  const teamA = {{ team_a_names|tojson }};
+  const teamB = {{ team_b_names|tojson }};
+  const startTimeValue = {{ start_time|tojson }};
+  const initialScoreA = {{ scoreA }};
+  const initialScoreB = {{ scoreB }};
+  const matchEnded = {{ 'true' if ended else 'false' }};
+  const endedAtValue = {{ ended_at|tojson }};
+  const elapsedSeconds = {{ elapsed_seconds }};
+  const resumeTimeValue = {{ resume_time|tojson }};
 </script>
 <script src="{{ url_for('static', filename='js/game-session.js') }}"></script>
 {% endblock %}
