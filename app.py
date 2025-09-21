@@ -463,6 +463,112 @@ def game_session():
     )
 
 
+
+# ---------- Leaderboard ----------
+@app.route("/leaderboard")
+def leaderboard():
+    game_id = request.args.get("game_id") or session.get("current_game_id")
+    if not game_id:
+        return redirect(url_for("game_plan"))
+
+    game = GameInfo.query.filter_by(game_id=game_id).first()
+    if not game:
+        return redirect(url_for("game_plan"))
+
+    players = Player.query.filter_by(game_id=game_id).order_by(Player.player_code).all()
+    player_map = {
+        player.player_id: {
+            "name": player.player_name,
+            "code": player.player_code,
+        }
+        for player in players
+    }
+
+    stats = {
+        player_id: {
+            "player_id": player_id,
+            "player_code": data["code"],
+            "player_name": data["name"],
+            "games": 0,
+            "wins": 0,
+            "losses": 0,
+            "ties": 0,
+            "points": 0,
+            "point_diff": 0,
+        }
+        for player_id, data in player_map.items()
+    }
+
+    details = (
+        db.session.query(
+            MatchDetail.match_id,
+            MatchDetail.player_id,
+            MatchDetail.team_side,
+            MatchDetail.team_side_score,
+            MatchDetail.winner_flag,
+        )
+        .join(
+            Drawing,
+            (MatchDetail.match_id == Drawing.match_id)
+            & (MatchDetail.player_id == Drawing.player_id),
+        )
+        .filter(Drawing.game_id == game_id)
+        .all()
+    )
+
+    match_scores = {}
+    for detail in details:
+        match_scores.setdefault(detail.match_id, {})[detail.team_side] = detail.team_side_score or 0
+
+    for detail in details:
+        player_id = detail.player_id
+        player_stats = stats.setdefault(
+            player_id,
+            {
+                "player_id": player_id,
+                "player_code": player_id,
+                "player_name": player_map.get(player_id, {}).get("name", "Unknown"),
+                "games": 0,
+                "wins": 0,
+                "losses": 0,
+                "ties": 0,
+                "points": 0,
+                "point_diff": 0,
+            },
+        )
+
+        player_stats["games"] += 1
+        flag = (detail.winner_flag or "").upper()
+        if flag == "W":
+            player_stats["wins"] += 1
+        elif flag == "L":
+            player_stats["losses"] += 1
+        elif flag == "T":
+            player_stats["ties"] += 1
+
+        score = detail.team_side_score or 0
+        player_stats["points"] += score
+
+        opponent_side = "B" if detail.team_side == "A" else "A"
+        opponent_score = match_scores.get(detail.match_id, {}).get(opponent_side, 0)
+        player_stats["point_diff"] += score - opponent_score
+
+    leaderboard_rows = sorted(
+        stats.values(),
+        key=lambda s: (s["points"], s["point_diff"], s["wins"]),
+        reverse=True,
+    )
+
+    for idx, row in enumerate(leaderboard_rows, start=1):
+        row["rank"] = idx
+
+    return render_template(
+        "leaderboard.html",
+        leaderboard=leaderboard_rows,
+        game_id=game_id,
+        game_name=game.game_name,
+    )
+
 # -------------------- Run --------------------
 if __name__ == "__main__":
     app.run(debug=True)

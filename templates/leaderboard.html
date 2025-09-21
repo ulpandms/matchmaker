@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Leaderboard - Match Maker{% endblock %}
+{% block body_class %}leaderboard{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/leaderboard.css') }}">
+{% endblock %}
+
+{% block intro %}
+<p class="intro">Leaderboard</p>
+{% endblock %}
+
+{% block content %}
+  <div class="leaderboard-wrapper">
+    {% if game_name %}
+      <h2 class="board-title">{{ game_name }}</h2>
+    {% endif %}
+
+    {% if leaderboard %}
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th class="col-rank">Rank</th>
+            <th class="col-player">Player</th>
+            <th class="col-record">G-W-L-T</th>
+            <th class="col-diff">Point Diff</th>
+            <th class="col-points">Points</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in leaderboard %}
+            <tr>
+              <td class="col-rank">{{ row.rank }}</td>
+              <td class="col-player">{{ row.player_name }}</td>
+              <td class="col-record">{{ row.games }}-{{ row.wins }}-{{ row.losses }}-{{ row.ties }}</td>
+              <td class="col-diff">{{ '%+d'|format(row.point_diff) }}</td>
+              <td class="col-points">{{ row.points }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="empty-state">No completed games yet. Come back after the first match!</p>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/leaderboard.js') }}"></script>
+{% endblock %}

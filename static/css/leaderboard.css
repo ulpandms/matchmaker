@@ -1,0 +1,112 @@
+@font-face {
+  font-family: "AptosNarrow";
+  src: url("/static/fonts/Aptos-Narrow.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body.leaderboard {
+  font-family: "AptosNarrow", sans-serif;
+  background: #fff;
+  color: #111;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body.leaderboard .container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2.5rem 1.75rem 3rem;
+}
+
+body.leaderboard .intro {
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #ff7a00;
+  margin-bottom: 2.5rem;
+}
+
+body.leaderboard .leaderboard-wrapper {
+  margin-top: 0.5rem;
+}
+
+body.leaderboard .board-title {
+  font-size: 2.2rem;
+  font-weight: 600;
+  margin: 0 0 1.75rem 0;
+  position: relative;
+}
+body.leaderboard .board-title::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: #111;
+  margin-top: 1rem;
+}
+
+body.leaderboard .leaderboard-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.75rem;
+}
+
+body.leaderboard .leaderboard-table thead th {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #666;
+  font-style: italic;
+  text-align: center;
+}
+body.leaderboard .leaderboard-table thead th.col-rank,
+body.leaderboard .leaderboard-table thead th.col-player {
+  text-align: left;
+}
+
+body.leaderboard .leaderboard-table tbody tr {
+  background: #e5e5e5;
+  border-radius: 999px;
+  overflow: hidden;
+}
+body.leaderboard .leaderboard-table tbody tr:first-child {
+  background: #ff7a00;
+  color: #fff;
+}
+
+body.leaderboard .leaderboard-table tbody td {
+  padding: 0.8rem 1.1rem;
+  font-size: 0.95rem;
+  vertical-align: middle;
+}
+body.leaderboard .leaderboard-table tbody tr:first-child td {
+  color: #fff;
+}
+
+body.leaderboard .leaderboard-table .col-rank {
+  width: 60px;
+  text-align: center;
+  font-weight: 600;
+}
+body.leaderboard .leaderboard-table .col-player {
+  font-style: italic;
+  text-align: left;
+}
+body.leaderboard .leaderboard-table .col-record,
+body.leaderboard .leaderboard-table .col-diff,
+body.leaderboard .leaderboard-table .col-points {
+  text-align: center;
+}
+body.leaderboard .leaderboard-table .col-diff {
+  font-weight: 600;
+}
+body.leaderboard .leaderboard-table .col-points {
+  font-style: italic;
+}
+
+body.leaderboard .empty-state {
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+  color: #666;
+  text-align: center;
+}
