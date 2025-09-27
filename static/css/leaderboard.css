@@ -24,7 +24,7 @@ body.leaderboard .leaderboard-wrapper {
 }
 
 body.leaderboard .board-title {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 600;
   margin: 0 0 1rem 0;
   position: relative;
@@ -82,7 +82,7 @@ body.leaderboard .leaderboard-table tbody tr:first-child td {
 body.leaderboard .leaderboard-table .col-rank {
   text-align: center;
   font-weight: 200;
-  width: 0.1rem;
+  width: 3rem;
 }
 body.leaderboard .leaderboard-table .col-rank .rank-icon {
   display: block;
@@ -111,3 +111,41 @@ body.leaderboard .empty-state {
   color: #666;
   text-align: center;
 }
+
+body.leaderboard .intro-with-icon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+body.leaderboard .intro-with-icon span {
+  flex: 1;
+}
+
+body.leaderboard .intro-icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+}
+
+body.leaderboard .intro-icon-link:hover {
+  opacity: 0.85;
+}
+
+body.leaderboard .intro-icon-link:focus-visible {
+  outline: 2px solid #ff7a00;
+  border-radius: 0.5rem;
+}
+
+body.leaderboard .intro-icon {
+  width: 2rem;
+  height: auto;
+}
+
+
+
+

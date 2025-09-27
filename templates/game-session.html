@@ -7,7 +7,12 @@
 {% endblock %}
 
 {% block intro %}
-<p class="intro">Game Session</p>
+<div class="intro intro-with-icon">
+  <span>Game Session</span>
+  <a href="{{ url_for('leaderboard') }}" class="intro-icon-link" aria-label="View leaderboard">
+    <img src="{{ url_for('static', filename='images/leaderboard.svg') }}" alt="Leaderboard" class="intro-icon">
+  </a>
+</div>
 {% endblock %}
 
 {% block content %}
@@ -86,6 +91,15 @@
       <button type="submit" class="btn btn-orange" id="nextBtn" {% if not ended %}disabled{% endif %}>Next Match</button>
     </form>
   </div>
+
+  {% if ended %}
+  <form method="POST" action="{{ url_for('wrap_up') }}" class="status-icon wrap-up-form">
+    <button type="submit" class="wrap-up-trigger" title="Wrap up the day">
+      <span class="status-label">Wrap Up the Day</span>
+      <img src="{{ url_for('static', filename='images/done_flag.svg') }}" alt="Wrap up the day" class="done-flag-icon">
+    </button>
+  </form>
+  {% endif %}
 {% endblock %}
 
 {% block scripts %}

@@ -240,3 +240,76 @@ body.game-session .winner-msg form {
 body.game-session .winner-msg .revise-button {
   flex: 0;
 }
+
+
+body.game-session .intro-with-icon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+body.game-session .intro-with-icon span {
+  flex: 1;
+}
+
+body.game-session .intro-icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+}
+
+body.game-session .intro-icon-link:hover {
+  opacity: 0.85;
+}
+
+body.game-session .intro-icon-link:focus-visible {
+  outline: 2px solid #ff7a00;
+  border-radius: 0.5rem;
+}
+
+body.game-session .intro-icon {
+  width: 2rem;
+  height: auto;
+}
+
+
+body.game-session .status-icon {
+  margin-top: 2.5rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+body.game-session .wrap-up-trigger {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  font-family: "AptosNarrow", sans-serif;
+}
+
+body.game-session .wrap-up-trigger:hover {
+  opacity: 0.9;
+}
+
+body.game-session .wrap-up-trigger:focus-visible {
+  outline: 2px solid #ff7a00;
+  border-radius: 0.5rem;
+}
+
+body.game-session .wrap-up-trigger .status-label {
+  font-size: 1rem;
+  font-style: italic;
+  color: #111;
+}
+
+body.game-session .wrap-up-trigger .done-flag-icon {
+  width: 3rem;
+  height: auto;
+}

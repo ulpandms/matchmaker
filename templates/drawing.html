@@ -7,7 +7,12 @@
 {% endblock %}
 
 {% block intro %}
-<p class="intro">Players Drawing</p>
+<div class="intro intro-with-icon">
+  <span>Players Drawing</span>
+  <a href="{{ url_for('leaderboard') }}" class="intro-icon-link" aria-label="View leaderboard">
+    <img src="{{ url_for('static', filename='images/leaderboard.svg') }}" alt="Leaderboard" class="intro-icon">
+  </a>
+</div>
 {% endblock %}
 
 {% block content %}
@@ -40,6 +45,13 @@
   <form method="POST" class="button-row">
     <button type="submit" name="action" value="redraw" class="btn btn-blue" id="redraw-btn" {% if not pending_game %}disabled{% endif %}>Re-Draw</button>
     <button type="submit" name="action" value="next" class="btn btn-orange" {% if not pending_game %}disabled{% endif %}>Game On!</button>
+  </form>
+
+  <form method="POST" action="{{ url_for('wrap_up') }}" class="status-icon wrap-up-form">
+    <button type="submit" class="wrap-up-trigger" title="Wrap up the day">
+      <span class="status-label">Wrap Up the Day</span>
+      <img src="{{ url_for('static', filename='images/done_flag.svg') }}" alt="Completed session" class="done-flag-icon">
+    </button>
   </form>
 {% endblock %}
 

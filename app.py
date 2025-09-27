@@ -29,6 +29,83 @@ def to_jakarta_naive(dt: datetime) -> datetime:
         return dt.astimezone(TZ).replace(tzinfo=None)
     return dt
 
+
+def finalize_game_result(game_id: str, active_game: dict):
+    """Persist the active game's pending result and clear session state."""
+    if not active_game or not active_game.get("result_pending"):
+        return False, "End the current game before wrapping up."
+
+    result = active_game["result_pending"]
+
+    match_id = active_game.get("match_id") or uuid.uuid4().hex
+    active_game["match_id"] = match_id
+
+    start_iso = active_game.get("start_time")
+    if isinstance(start_iso, datetime):
+        start_iso = start_iso.isoformat()
+        active_game["start_time"] = start_iso
+    if not start_iso:
+        start_iso = now_jakarta().isoformat()
+        active_game["start_time"] = start_iso
+
+    end_iso = result.get("ended_at") or now_jakarta().isoformat()
+    result["ended_at"] = end_iso
+
+    start_dt = to_jakarta_naive(datetime.fromisoformat(start_iso))
+    end_dt = to_jakarta_naive(datetime.fromisoformat(end_iso))
+
+    players_db = Player.query.filter_by(game_id=game_id).order_by(Player.player_code).all()
+    players_map = {player.player_name: player for player in players_db}
+
+    elapsed_total = int(active_game.get("elapsed_seconds", 0) or 0)
+    duration_delta = timedelta(seconds=elapsed_total)
+    duration_str = str(duration_delta).split(".")[0]
+
+    for side_index, team in enumerate(active_game.get("teams", []), start=1):
+        team_side = "A" if side_index == 1 else "B"
+        score = result["scoreA"] if team_side == "A" else result["scoreB"]
+        if result["winner"] == "T":
+            flag = "T"
+        else:
+            flag = "W" if team_side == result["winner"] else "L"
+
+        for player_name in team:
+            player_obj = players_map.get(player_name)
+            player_id = player_obj.player_id if player_obj else uuid.uuid4().hex[:10]
+            detail = MatchDetail(
+                match_id=match_id,
+                player_id=player_id,
+                team_side=team_side,
+                team_side_score=score,
+                winner_flag=flag,
+                match_start_at=start_dt,
+                match_end_at=end_dt,
+                match_duration=duration_str,
+            )
+            db.session.add(detail)
+
+    db.session.commit()
+
+    locked_games = session.get("games") or []
+    for idx, stored in enumerate(locked_games):
+        if stored.get("match_id") == match_id:
+            locked_games[idx] = active_game
+            break
+    else:
+        locked_games.append(active_game)
+    session["games"] = locked_games
+
+    active_game["status"] = "completed"
+    active_game["completed_at"] = end_iso
+    active_game.pop("result_pending", None)
+
+    session["active_game"] = None
+    session["pending_game"] = None
+    session.modified = True
+
+    return True, None
+
+
 # -------------------- Helpers --------------------
 def get_logic():
     """Load logic module based on current playground & players."""
@@ -279,7 +356,11 @@ def game_session():
     if not active_game:
         return redirect(url_for("drawing"))
 
-    error_message = None
+    game_id = session.get("current_game_id")
+    if not game_id:
+        return redirect(url_for("game_plan"))
+
+    error_message = session.pop("wrap_up_error", None)
     ended = active_game.get("status") == "ended"
     winner_side = active_game.get("winner")
     loser_side = None
@@ -349,80 +430,10 @@ def game_session():
             loser_side = None
 
         elif action == "next":
-            result = active_game.get("result_pending")
-            if not result:
-                error_message = "End the current game before starting the next match."
+            success, error = finalize_game_result(game_id, active_game)
+            if not success:
+                error_message = error
             else:
-                game_id = session.get("current_game_id")
-                if not game_id:
-                    return redirect(url_for("game_plan"))
-
-                match_id = active_game.get("match_id") or uuid.uuid4().hex
-                active_game["match_id"] = match_id
-
-                start_iso = active_game.get("start_time")
-                if not start_iso:
-                    start_iso = now_jakarta().isoformat()
-                    active_game["start_time"] = start_iso
-
-                if isinstance(start_iso, datetime):
-                    start_iso = start_iso.isoformat()
-                    active_game["start_time"] = start_iso
-
-                end_iso = result.get("ended_at") or now_jakarta().isoformat()
-                result["ended_at"] = end_iso
-
-                start_dt = to_jakarta_naive(datetime.fromisoformat(start_iso))
-                end_dt = to_jakarta_naive(datetime.fromisoformat(end_iso))
-
-                players_db = Player.query.filter_by(game_id=game_id).order_by(Player.player_code).all()
-                players_map = {p.player_name: p for p in players_db}
-
-                elapsed_total = int(active_game.get("elapsed_seconds", 0) or 0)
-                duration_delta = timedelta(seconds=elapsed_total)
-                duration_str = str(duration_delta).split(".")[0]
-
-                for side_index, team in enumerate(active_game.get("teams", []), start=1):
-                    team_side = "A" if side_index == 1 else "B"
-                    score = result["scoreA"] if team_side == "A" else result["scoreB"]
-                    if result["winner"] == "T":
-                        flag = "T"
-                    else:
-                        flag = "W" if team_side == result["winner"] else "L"
-
-                    for player_name in team:
-                        player_obj = players_map.get(player_name)
-                        player_id = player_obj.player_id if player_obj else uuid.uuid4().hex[:10]
-                        detail = MatchDetail(
-                            match_id=match_id,
-                            player_id=player_id,
-                            team_side=team_side,
-                            team_side_score=score,
-                            winner_flag=flag,
-                            match_start_at=start_dt,
-                            match_end_at=end_dt,
-                            match_duration=duration_str,
-                        )
-                        db.session.add(detail)
-
-                db.session.commit()
-
-                locked_games = session.get("games") or []
-                for idx, stored in enumerate(locked_games):
-                    if stored.get("match_id") == match_id:
-                        locked_games[idx] = active_game
-                        break
-                else:
-                    locked_games.append(active_game)
-                session["games"] = locked_games
-
-                active_game["status"] = "completed"
-                active_game["completed_at"] = end_iso
-                active_game.pop("result_pending", None)
-                session["active_game"] = None
-                session["pending_game"] = None
-                session.modified = True
-
                 return redirect(url_for("drawing"))
 
     ended = active_game.get("status") == "ended"
@@ -462,6 +473,30 @@ def game_session():
         resume_time=active_game.get("resume_time") or active_game.get("start_time"),
     )
 
+
+
+# ---------- Wrap Up ----------
+@app.route("/wrap-up", methods=["POST"])
+def wrap_up():
+    game_id = session.get("current_game_id")
+    if not game_id:
+        return redirect(url_for("game_plan"))
+
+    active_game = session.get("active_game")
+    if active_game and active_game.get("result_pending"):
+        success, error = finalize_game_result(game_id, active_game)
+        if not success:
+            session["wrap_up_error"] = error
+            session.modified = True
+            return redirect(url_for("game_session"))
+    else:
+        session["active_game"] = None
+        session["pending_game"] = None
+
+    session["event_completed"] = True
+    session.modified = True
+
+    return redirect(url_for("leaderboard"))
 
 
 # ---------- Leaderboard ----------
@@ -569,6 +604,7 @@ def leaderboard():
         game_name=game.game_name,
         game_place=game.game_place,
         game_date=game.created_at,
+        event_completed=session.get("event_completed", False),
     )
 
 # -------------------- Run --------------------

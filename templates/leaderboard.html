@@ -8,7 +8,14 @@
 {% endblock %}
 
 {% block intro %}
-<p class="intro">Leaderboard</p>
+<div class="intro intro-with-icon">
+  <span>Leaderboard</span>
+  {% if not event_completed %}
+    <a href="{{ request.referrer or url_for('drawing') }}" class="intro-icon-link" aria-label="Go back">
+      <img src="{{ url_for('static', filename='images/back_to.svg') }}" alt="Back" class="intro-icon">
+    </a>
+  {% endif %}
+</div>
 {% endblock %}
 
 {% block content %}
@@ -61,3 +68,4 @@
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/leaderboard.js') }}"></script>
 {% endblock %}
+

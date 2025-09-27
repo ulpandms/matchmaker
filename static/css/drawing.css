@@ -94,3 +94,78 @@ body.drawing {
 .btn:active { transform: translateY(1px); }
 .btn-blue { background: #3b82f6; }
 .btn-orange { background: #ff7a00; }
+
+
+body.drawing .intro-with-icon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+body.drawing .intro-with-icon span {
+  flex: 1;
+}
+
+body.drawing .intro-icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+body.drawing .intro-icon-link:hover {
+  opacity: 0.85;
+}
+
+body.drawing .intro-icon-link:focus-visible {
+  outline: 2px solid #ff7a00;
+  border-radius: 0.5rem;
+}
+
+body.drawing .intro-icon {
+  width: 2.25rem;
+  height: auto;
+}
+
+
+body.drawing .status-icon {
+  margin-top: 5rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+body.drawing .wrap-up-trigger {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  font-family: "AptosNarrow", sans-serif;
+}
+
+body.drawing .wrap-up-trigger:hover {
+  opacity: 0.9;
+}
+
+body.drawing .wrap-up-trigger:focus-visible {
+  outline: 2px solid #ff7a00;
+  border-radius: 0.5rem;
+}
+
+body.drawing .wrap-up-trigger .status-label {
+  font-size: 1rem;
+  font-style: italic;
+  color: #111;
+}
+
+body.drawing .wrap-up-trigger .done-flag-icon {
+  width: 3rem;
+  height: auto;
+}
+
+
