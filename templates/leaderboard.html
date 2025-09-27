@@ -27,11 +27,11 @@
       <table class="leaderboard-table">
         <thead>
           <tr>
-            <th class="col-rank">Rank</th>
-            <th class="col-player">Player</th>
-            <th class="col-record">G-W-L-T</th>
-            <th class="col-diff">Point Diff</th>
-            <th class="col-points">Points</th>
+            <th class="col-rank"></th>
+            <th class="col-player"></th>
+            <th class="col-record">G-W-L</th>
+            <th class="col-diff">Diff</th>
+            <th class="col-points">P</th>
           </tr>
         </thead>
         <tbody>
@@ -39,7 +39,7 @@
             <tr>
               <td class="col-rank">{{ row.rank }}</td>
               <td class="col-player">{{ row.player_name }}</td>
-              <td class="col-record">{{ row.games }}-{{ row.wins }}-{{ row.losses }}-{{ row.ties }}</td>
+              <td class="col-record">{{ row.games }}-{{ row.wins }}-{{ row.losses }}</td>
               <td class="col-diff">{{ '%+d'|format(row.point_diff) }}</td>
               <td class="col-points">{{ row.points }}</td>
             </tr>

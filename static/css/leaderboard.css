@@ -72,9 +72,8 @@ body.leaderboard .leaderboard-table tbody tr:first-child td {
 }
 
 body.leaderboard .leaderboard-table .col-rank {
-  width: 60px;
   text-align: center;
-  font-weight: 600;
+  font-weight: 200;
 }
 body.leaderboard .leaderboard-table .col-player {
   font-style: italic;
@@ -86,10 +85,10 @@ body.leaderboard .leaderboard-table .col-points {
   text-align: center;
 }
 body.leaderboard .leaderboard-table .col-diff {
-  font-weight: 600;
+  font-weight: 200;
 }
 body.leaderboard .leaderboard-table .col-points {
-  font-style: italic;
+  font-weight: 600;
 }
 
 body.leaderboard .empty-state {
