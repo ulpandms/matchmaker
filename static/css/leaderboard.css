@@ -59,7 +59,7 @@ body.leaderboard .leaderboard-table tbody tr:first-child {
 }
 
 body.leaderboard .leaderboard-table tbody td {
-  padding: 0.8rem 1.1rem;
+  padding: 0.8rem 0;
   font-size: 0.95rem;
   vertical-align: middle;
   border: none;
