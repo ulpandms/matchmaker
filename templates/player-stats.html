@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Player Stats - Match Maker{% endblock %}
+{% block body_class %}player-stats{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/player-stats.css') }}">
+{% endblock %}
+
+{% block intro %}
+<p class="intro">Performance Recap</p>
+{% endblock %}
+
+{% block content %}
+  <section class="player-summary">
+    <h1 class="player-name">{{ player.player_name }}</h1>
+    <p class="game-meta">{{ game.game_name }}{% if game.game_place %} | {{ game.game_place }}{% endif %}</p>
+    {% if game.created_at %}
+      <p class="game-meta">{{ game.created_at.strftime('%d %b %Y') }}</p>
+    {% endif %}
+  </section>
+
+  <section class="rank-section">
+    <h2 class="section-title">Rank</h2>
+    <ul class="rank-chips">
+      {% for chip in rank_chips %}
+        <li class="rank-chip{% if chip.rank == player_rank %} active{% endif %}">{{ chip.rank }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="game-stats-section">
+    <h2 class="section-title">Game Stats</h2>
+    <div class="stat-bar" style="--win-pct: {{ win_pct }}%;">
+      <div class="stat-fill"></div>
+      <div class="stat-center">{{ wins_display }}</div>
+    </div>
+    <div class="stat-markers">
+      <span>win</span>
+      <span>loss</span>
+    </div>
+  </section>
+
+    <section class="metrics-section">
+    <div class="metric-block">
+      <h3 class="metric-title">Time on Court</h3>
+      <div class="metric-value">{{ time_on_court }}</div>
+    </div>
+    <div class="metric-block">
+      <h3 class="metric-title">Avg. Game Time</h3>
+      <div class="metric-value">{{ avg_game_time }}</div>
+    </div>
+  </section>
+
+    <section class="breakdown-section">
+    <h2 class="section-title">Game Breakdown</h2>
+    <div class="breakdown-list">
+      {% if breakdown %}
+        {% for item in breakdown %}
+          <div class="breakdown-row">
+            <div class="breakdown-cell breakdown-match">#{{ item.game_no }}</div>
+            <div class="breakdown-cell breakdown-team{% if item.player_side == 'A' %} highlight{% endif %}">
+              {{ item.team_a | join(' - ') }}{% if item.score_a is not none %} <span class='score'>({{ item.score_a }})</span>{% endif %}
+            </div>
+            <div class="breakdown-cell breakdown-team{% if item.player_side == 'B' %} highlight{% endif %}">
+              {% if item.score_b is not none %}<span class='score'>({{ item.score_b }})</span> {% endif %}{{ item.team_b | join(' - ') }}
+            </div>
+            <div class="breakdown-cell breakdown-duration">{{ item.duration }}</div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="empty-breakdown">No recorded games for this player yet.</p>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}
+
+
+

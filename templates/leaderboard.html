@@ -51,7 +51,13 @@
                   {{ row.rank }}
                 {% endif %}
               </td>
-              <td class="col-player">{{ row.player_name }}</td>
+              <td class="col-player">
+                {% if event_completed %}
+                  <a href="{{ url_for('player_stats_view', player_id=row.player_id) }}" class="player-link">{{ row.player_name }}</a>
+                {% else %}
+                  {{ row.player_name }}
+                {% endif %}
+              </td>
               <td class="col-record">{{ row.games }}-{{ row.wins }}-{{ row.losses }}</td>
               <td class="col-diff">{{ '%+d'|format(row.point_diff) }}</td>
               <td class="col-points">{{ row.points }}</td>

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, abort
 from flask_migrate import Migrate
 from models import db, GameInfo, Playground, Player, Drawing, MatchDetail
 from logic.loader import load_logic
@@ -107,6 +107,140 @@ def finalize_game_result(game_id: str, active_game: dict):
     session.modified = True
 
     return True, None
+
+
+
+def compute_leaderboard_data(game_id):
+    players = Player.query.filter_by(game_id=game_id).order_by(Player.player_code).all()
+    player_map = {
+        player.player_id: {
+            "name": player.player_name,
+            "code": player.player_code,
+        }
+        for player in players
+    }
+
+    stats = {
+        player_id: {
+            "player_id": player_id,
+            "player_code": data["code"],
+            "player_name": data["name"],
+            "games": 0,
+            "wins": 0,
+            "losses": 0,
+            "ties": 0,
+            "points": 0,
+            "point_diff": 0,
+        }
+        for player_id, data in player_map.items()
+    }
+
+    details = (
+        db.session.query(
+            MatchDetail.match_id,
+            MatchDetail.player_id,
+            MatchDetail.team_side,
+            MatchDetail.team_side_score,
+            MatchDetail.winner_flag,
+        )
+        .join(
+            Drawing,
+            (MatchDetail.match_id == Drawing.match_id)
+            & (MatchDetail.player_id == Drawing.player_id),
+        )
+        .filter(Drawing.game_id == game_id)
+        .all()
+    )
+
+    match_scores = {}
+    for detail in details:
+        match_scores.setdefault(detail.match_id, {})[detail.team_side] = detail.team_side_score or 0
+
+    for detail in details:
+        player_id = detail.player_id
+        player_stats = stats.setdefault(
+            player_id,
+            {
+                "player_id": player_id,
+                "player_code": player_id,
+                "player_name": player_map.get(player_id, {}).get("name", "Unknown"),
+                "games": 0,
+                "wins": 0,
+                "losses": 0,
+                "ties": 0,
+                "points": 0,
+                "point_diff": 0,
+            },
+        )
+
+        player_stats["games"] += 1
+        flag = (detail.winner_flag or "").upper()
+        if flag == "W":
+            player_stats["wins"] += 1
+        elif flag == "L":
+            player_stats["losses"] += 1
+        elif flag == "T":
+            player_stats["ties"] += 1
+
+        score = detail.team_side_score or 0
+        player_stats["points"] += score
+
+        opponent_side = "B" if detail.team_side == "A" else "A"
+        opponent_score = match_scores.get(detail.match_id, {}).get(opponent_side, 0)
+        player_stats["point_diff"] += score - opponent_score
+
+    leaderboard_rows = sorted(
+        stats.values(),
+        key=lambda s: (s["points"], s["point_diff"], s["wins"]),
+        reverse=True,
+    )
+
+    for idx, row in enumerate(leaderboard_rows, start=1):
+        row["rank"] = idx
+
+    return player_map, stats, leaderboard_rows, details
+
+
+def parse_duration_to_seconds(value: str) -> int:
+    if not value:
+        return 0
+
+    value = value.strip()
+    days = 0
+    if 'day' in value:
+        day_part, time_part = value.split(', ')
+        days = int(day_part.split()[0])
+        value = time_part
+
+    parts = value.split(':')
+    try:
+        parts = [int(p) for p in parts]
+    except ValueError:
+        return 0
+
+    while len(parts) < 3:
+        parts.insert(0, 0)
+
+    hours, minutes, seconds = parts[-3:]
+    return days * 86400 + hours * 3600 + minutes * 60 + seconds
+
+
+def format_duration_verbose(total_seconds: int) -> str:
+    if total_seconds <= 0:
+        return '0m 0s'
+
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    parts = []
+    if hours:
+        parts.append(f"{hours}h")
+    parts.append(f"{minutes}m")
+    parts.append(f"{seconds}s")
+    return ' '.join(parts)
+
+
+
+
 
 
 # -------------------- Helpers --------------------
@@ -475,6 +609,163 @@ def game_session():
         elapsed_seconds=int(active_game.get("elapsed_seconds", 0) or 0),
         resume_time=active_game.get("resume_time") or active_game.get("start_time"),
     )
+
+
+
+@app.route("/player-stats/<player_id>")
+def player_stats_view(player_id):
+    game_id = session.get("current_game_id")
+    if not game_id:
+        return redirect(url_for("game_plan"))
+
+    if not session.get("event_completed"):
+        return redirect(url_for("leaderboard"))
+
+    game = GameInfo.query.filter_by(game_id=game_id).first()
+    if not game:
+        return redirect(url_for("game_plan"))
+
+    player = Player.query.filter_by(game_id=game_id, player_id=player_id).first()
+    if not player:
+        abort(404)
+
+    player_map, stats, leaderboard_rows, _ = compute_leaderboard_data(game_id)
+    player_stats = stats.get(player_id)
+    if not player_stats:
+        abort(404)
+
+    total_games = player_stats.get("games", 0)
+    wins = player_stats.get("wins", 0)
+    losses = player_stats.get("losses", 0) + player_stats.get("ties", 0)
+    win_pct = int(round((wins / total_games) * 100)) if total_games else 0
+    loss_pct = 100 - win_pct if total_games else 0
+
+    player_rows = (
+        db.session.query(MatchDetail, Drawing.game_no)
+        .join(Drawing, MatchDetail.match_id == Drawing.match_id)
+        .filter(Drawing.game_id == game_id, MatchDetail.player_id == player_id)
+        .order_by(Drawing.game_no)
+        .all()
+    )
+
+    player_matches = {}
+    for md, game_no in player_rows:
+        player_matches.setdefault(md.match_id, {"detail": md, "game_no": game_no})
+
+    unique_player_details = list(player_matches.values())
+    match_count = len(unique_player_details)
+
+    match_ids = [entry["detail"].match_id for entry in unique_player_details]
+    all_details = []
+    rosters = {}
+    if match_ids:
+        all_details = (
+            db.session.query(MatchDetail, Drawing)
+            .join(Drawing, MatchDetail.match_id == Drawing.match_id)
+            .filter(MatchDetail.match_id.in_(match_ids))
+            .all()
+        )
+
+        roster_rows = (
+            db.session.query(Drawing.match_id, Drawing.team_side, Player.player_name)
+            .join(Player, Player.player_id == Drawing.player_id)
+            .filter(Drawing.match_id.in_(match_ids))
+            .all()
+        )
+        for match_id, team_side, player_name in roster_rows:
+            bucket = rosters.setdefault(match_id, {"A": [], "B": []})
+            if player_name not in bucket.get(team_side, []):
+                bucket.setdefault(team_side, []).append(player_name)
+
+    match_summary = {}
+    for md, dr in all_details:
+        info = match_summary.setdefault(
+            md.match_id,
+            {
+                "game_no": dr.game_no,
+                "teams": {"A": [], "B": []},
+                "scores": {},
+                "duration": md.match_duration,
+                "winner": None,
+            },
+        )
+        name = player_map.get(md.player_id, {}).get("name")
+        if not name:
+            other = Player.query.filter_by(player_id=md.player_id).first()
+            name = other.player_name if other else md.player_id
+            player_map.setdefault(md.player_id, {"name": name, "code": ""})
+        info["scores"][md.team_side] = md.team_side_score or 0
+        if md.winner_flag == "W":
+            info["winner"] = md.team_side
+        elif md.winner_flag == "T":
+            info["winner"] = "T"
+        if md.match_duration and not info.get("duration"):
+            info["duration"] = md.match_duration
+
+    for match_id, info in match_summary.items():
+        roster = rosters.get(match_id, {})
+        info["teams"]["A"] = roster.get("A", [])
+        info["teams"]["B"] = roster.get("B", [])
+
+    breakdown = []
+    for entry in unique_player_details:
+        md = entry["detail"]
+        game_no = entry["game_no"]
+        info = match_summary.get(md.match_id, {
+            "game_no": game_no,
+            "teams": {"A": [], "B": []},
+            "scores": {},
+            "duration": md.match_duration,
+            "winner": md.winner_flag,
+        })
+        breakdown.append({
+            "game_no": info.get("game_no", game_no),
+            "team_a": info.get("teams", {}).get("A", []),
+            "team_b": info.get("teams", {}).get("B", []),
+            "score_a": info.get("scores", {}).get("A"),
+            "score_b": info.get("scores", {}).get("B"),
+            "duration": info.get("duration") or md.match_duration or '--:--:--',
+            "player_side": md.team_side,
+            "winner": info.get("winner"),
+        })
+
+    breakdown.sort(key=lambda item: item.get("game_no", 0))
+
+    total_duration_seconds = sum(parse_duration_to_seconds(entry["detail"].match_duration) for entry in unique_player_details)
+    avg_duration_seconds = int(total_duration_seconds / match_count) if match_count else 0
+
+    player_rank = player_stats.get("rank")
+    rank_limit = min(len(leaderboard_rows), 10)
+    rank_chips = leaderboard_rows[:rank_limit]
+    if player_rank and all(chip.get("player_id") != player_id for chip in rank_chips):
+        extra_chip = next((row for row in leaderboard_rows if row.get("player_id") == player_id), None)
+        if extra_chip and extra_chip not in rank_chips:
+            rank_chips.append(extra_chip)
+
+    wins_display = f"{wins} ({win_pct}%)" if total_games else "0 (0%)"
+    losses_display = f"{losses} ({loss_pct}%)" if total_games else "0 (0%)"
+
+
+    return render_template(
+        'player-stats.html',
+        game=game,
+        player=player,
+        player_stats=player_stats,
+        total_games=total_games,
+        wins=wins,
+        losses=losses,
+        win_pct=win_pct,
+        loss_pct=loss_pct,
+        wins_display=wins_display,
+        losses_display=losses_display,
+        player_rank=player_rank,
+        time_on_court=format_duration_verbose(total_duration_seconds),
+        avg_game_time=format_duration_verbose(avg_duration_seconds),
+        breakdown=breakdown,
+        rank_chips=rank_chips,
+        total_players=len(leaderboard_rows),
+    )
+
 
 
 

@@ -6,7 +6,7 @@
 }
 
 body.leaderboard {
-  font-family: "AptosNarrow", sans-serif;
+  font-family: "AptosNarrow";
   background: #fff;
   color: #111;
   -webkit-font-smoothing: antialiased;
@@ -147,5 +147,16 @@ body.leaderboard .intro-icon {
 }
 
 
+
+
+body.leaderboard .leaderboard-table .col-player .player-link {
+  color: inherit;
+  text-decoration: none;
+  display: inline-block;
+}
+
+body.leaderboard .leaderboard-table .col-player .player-link:hover {
+  text-decoration: underline;
+}
 
 

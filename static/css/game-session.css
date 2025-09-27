@@ -7,7 +7,7 @@
 }
 
 body.game-session {
-  font-family: "AptosNarrow", sans-serif;
+  font-family: "AptosNarrow";
   background: #fff;
   color: #111;
   -webkit-font-smoothing: antialiased;
@@ -168,7 +168,7 @@ body.game-session .btn {
   padding: 0.85rem;
   border: none;
   border-radius: 6px;
-  font-family: "AptosNarrow", sans-serif;
+  font-family: "AptosNarrow";
   font-size: 1rem;
   font-weight: 500;
   color: #fff;
@@ -291,7 +291,7 @@ body.game-session .wrap-up-trigger {
   background: transparent;
   padding: 0;
   cursor: pointer;
-  font-family: "AptosNarrow", sans-serif;
+  font-family: "AptosNarrow";
 }
 
 body.game-session .wrap-up-trigger:hover {
@@ -313,3 +313,4 @@ body.game-session .wrap-up-trigger .done-flag-icon {
   width: 3rem;
   height: auto;
 }
+
