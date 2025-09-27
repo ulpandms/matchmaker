@@ -31,9 +31,10 @@
 
   <section class="game-stats-section">
     <h2 class="section-title">Game Stats</h2>
-    <div class="stat-bar" style="--win-pct: {{ win_pct }}%;">
+    <div class="stat-bar" style="--win-pct: {{ win_pct }}%; --loss-pct: {{ loss_pct }}%;">
       <div class="stat-fill"></div>
-      <div class="stat-center">{{ wins_display }}</div>
+      {% if win_pct > 0 %}<span class="stat-text stat-text-win">{{ wins_display }}</span>{% endif %}
+      {% if loss_pct > 0 %}<span class="stat-text stat-text-loss">{{ losses_display }}</span>{% endif %}
     </div>
     <div class="stat-markers">
       <span>win</span>

@@ -30,14 +30,14 @@ body.player-stats .player-name {
 }
 
 body.player-stats .game-meta {
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: #555;
   margin: 0.2rem 0;
 }
 
 body.player-stats .section-title {
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 200;
   margin: 1.5rem 0 0.6rem;
 }
 
@@ -53,11 +53,11 @@ body.player-stats .rank-chip {
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
-  background: #d6d6d6;
+  background: #f2f2f2;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
 body.player-stats .rank-chip.active {
@@ -70,7 +70,7 @@ body.player-stats .game-stats-section .stat-bar {
   width: 100%;
   height: 2rem;
   border-radius: 6px;
-  background: #cfcfcf;
+  background: #f2f2f2;
   overflow: hidden;
   margin-bottom: 0.35rem;
 }
@@ -109,6 +109,7 @@ body.player-stats .metrics-section {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  margin: 1rem 0;
 }
 
 body.player-stats .metric-block {
@@ -119,15 +120,15 @@ body.player-stats .metric-block {
 
 body.player-stats .metric-title {
   margin: 0;
-  font-size: 0.95rem;
-  font-style: italic;
+  font-size: 1rem;
+  font-weight: 200;
 }
 
 body.player-stats .metric-value {
-  background: #d6d6d6;
+  background: #f2f2f2;
   padding: 0.6rem 0.75rem;
   border-radius: 4px;
-  font-weight: 600;
+  font-weight: 200;
   font-size: 1rem;
 }
 
@@ -155,35 +156,34 @@ body.player-stats .breakdown-cell {
 }
 
 body.player-stats .breakdown-match {
-  font-weight: 600;
+  font-weight: 200;
 }
 
 body.player-stats .breakdown-team {
   display: inline-flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.2rem;
 }
 
 body.player-stats .breakdown-team.highlight {
-  font-weight: 600;
+  font-weight: 200;
   color: #ff7a00;
 }
 
 body.player-stats .breakdown-team .score {
-  font-weight: 600;
+  font-weight: 200;
   margin: 0 0.25rem;
 }
 
 body.player-stats .breakdown-duration {
   justify-content: flex-end;
   text-align: right;
-  font-weight: 600;
+  font-weight: 200;
 }
 
 body.player-stats .empty-breakdown {
   color: #777;
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
 @media (min-width: 540px) {
