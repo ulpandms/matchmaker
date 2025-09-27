@@ -14,7 +14,13 @@
 {% block content %}
   <div class="leaderboard-wrapper">
     {% if game_name %}
-      <h2 class="board-title">{{ game_name }}</h2>
+      <h2 class="board-title">
+        {{ game_name }}{% if game_place %} | {{ game_place }}{% endif %}
+        {% if game_date %}
+          <br>
+          {{ game_date.strftime('%d %b %Y') }}
+        {% endif %}
+      </h2>
     {% endif %}
 
     {% if leaderboard %}

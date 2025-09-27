@@ -24,10 +24,9 @@ body.drawing {
 
 /* Game Info */
 .game-info h2 {
-  margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  margin: 1em 1em;
+  margin-bottom: -0.8rem;
 }
 
 .game-info .court {

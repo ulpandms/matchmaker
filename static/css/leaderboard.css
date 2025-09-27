@@ -14,17 +14,9 @@ body.leaderboard {
 }
 
 body.leaderboard .container {
-  max-width: 640px;
+  max-width: 480px;
   margin: 0 auto;
-  padding: 2.5rem 1.75rem 3rem;
-}
-
-body.leaderboard .intro {
-  font-size: 1rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #ff7a00;
-  margin-bottom: 2.5rem;
+  padding: 2rem 1.5rem;
 }
 
 body.leaderboard .leaderboard-wrapper {
@@ -32,24 +24,18 @@ body.leaderboard .leaderboard-wrapper {
 }
 
 body.leaderboard .board-title {
-  font-size: 2.2rem;
+  font-size: 1.5rem;
   font-weight: 600;
-  margin: 0 0 1.75rem 0;
+  margin: 0 0 1rem 0;
   position: relative;
 }
-body.leaderboard .board-title::after {
-  content: "";
-  display: block;
-  width: 100%;
-  height: 2px;
-  background: #111;
-  margin-top: 1rem;
-}
+
 
 body.leaderboard .leaderboard-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0 0.75rem;
+  border: none;
 }
 
 body.leaderboard .leaderboard-table thead th {
@@ -58,6 +44,7 @@ body.leaderboard .leaderboard-table thead th {
   color: #666;
   font-style: italic;
   text-align: center;
+  border: none;
 }
 body.leaderboard .leaderboard-table thead th.col-rank,
 body.leaderboard .leaderboard-table thead th.col-player {
@@ -78,6 +65,7 @@ body.leaderboard .leaderboard-table tbody td {
   padding: 0.8rem 1.1rem;
   font-size: 0.95rem;
   vertical-align: middle;
+  border: none;
 }
 body.leaderboard .leaderboard-table tbody tr:first-child td {
   color: #fff;

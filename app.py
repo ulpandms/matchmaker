@@ -567,6 +567,8 @@ def leaderboard():
         leaderboard=leaderboard_rows,
         game_id=game_id,
         game_name=game.game_name,
+        game_place=game.game_place,
+        game_date=game.created_at,
     )
 
 # -------------------- Run --------------------
