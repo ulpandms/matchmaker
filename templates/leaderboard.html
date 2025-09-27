@@ -37,7 +37,13 @@
         <tbody>
           {% for row in leaderboard %}
             <tr>
-              <td class="col-rank">{{ row.rank }}</td>
+              <td class="col-rank">
+                {% if row.rank == 1 %}
+                  <img src="{{ url_for('static', filename='images/King.svg') }}" alt="Rank 1" class="rank-icon">
+                {% else %}
+                  {{ row.rank }}
+                {% endif %}
+              </td>
               <td class="col-player">{{ row.player_name }}</td>
               <td class="col-record">{{ row.games }}-{{ row.wins }}-{{ row.losses }}</td>
               <td class="col-diff">{{ '%+d'|format(row.point_diff) }}</td>

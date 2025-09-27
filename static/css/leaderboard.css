@@ -52,12 +52,9 @@ body.leaderboard .leaderboard-table thead th.col-player {
 }
 
 body.leaderboard .leaderboard-table tbody tr {
-  background: #e5e5e5;
-  border-radius: 999px;
-  overflow: hidden;
+  background: transparent;
 }
 body.leaderboard .leaderboard-table tbody tr:first-child {
-  background: #ff7a00;
   color: #fff;
 }
 
@@ -66,14 +63,31 @@ body.leaderboard .leaderboard-table tbody td {
   font-size: 0.95rem;
   vertical-align: middle;
   border: none;
+  background: #e5e5e5;
+}
+body.leaderboard .leaderboard-table tbody tr td:first-child {
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+body.leaderboard .leaderboard-table tbody tr td:last-child {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
 }
 body.leaderboard .leaderboard-table tbody tr:first-child td {
+  background: #ff7a00;
   color: #fff;
 }
+
 
 body.leaderboard .leaderboard-table .col-rank {
   text-align: center;
   font-weight: 200;
+  width: 0.1rem;
+}
+body.leaderboard .leaderboard-table .col-rank .rank-icon {
+  display: block;
+  height: auto;
+  margin: 0 auto;
 }
 body.leaderboard .leaderboard-table .col-player {
   font-style: italic;
