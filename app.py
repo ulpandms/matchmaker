@@ -37,6 +37,9 @@ def finalize_game_result(game_id: str, active_game: dict):
 
     result = active_game["result_pending"]
 
+    if result.get("winner") == "T":
+        return False, "Resolve the tie before wrapping up."
+
     match_id = active_game.get("match_id") or uuid.uuid4().hex
     active_game["match_id"] = match_id
 

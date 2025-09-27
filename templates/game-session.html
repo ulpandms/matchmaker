@@ -62,7 +62,7 @@
     <div id="winner-msg" class="winner-msg">
       <span>
         {% if winner_side == 'T' %}
-          It's a tie!
+          It's a tie! We Need a Winner
         {% else %}
           Winner: Team {{ winner_side }} ({{ team_a_names|join(' + ') if winner_side == 'A' else team_b_names|join(' + ') }})
         {% endif %}
@@ -88,11 +88,11 @@
     </form>
     <form method="POST" action="{{ url_for('game_session') }}" class="action-form">
       <input type="hidden" name="action" value="next">
-      <button type="submit" class="btn btn-orange" id="nextBtn" {% if not ended %}disabled{% endif %}>Next Match</button>
+      <button type="submit" class="btn btn-orange" id="nextBtn" {% if not ended or winner_side == 'T' %}disabled{% endif %}>Next Match</button>
     </form>
   </div>
 
-  {% if ended %}
+  {% if ended and winner_side != 'T' %}
   <form method="POST" action="{{ url_for('wrap_up') }}" class="status-icon wrap-up-form">
     <button type="submit" class="wrap-up-trigger" title="Wrap up the day">
       <span class="status-label">Wrap Up the Day</span>
